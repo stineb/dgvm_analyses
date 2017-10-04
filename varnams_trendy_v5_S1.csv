@@ -1,0 +1,17 @@
+modl,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+CABLE,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+CLASS-CTEM,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+CLM,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+DLEM,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+ISAM,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+JSBACH,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+JULES,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+LPJ,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+LPJ-GUESS,cRoot.yearly,cLeaf.yearly,npp.yearly,fNloss.yearly,fNuppft.yearly,fBNF.yearly,fNdep.yearly
+LPX-Bern,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+ORCHIDEE,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+ORCHIDEE-MICT,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+SDGVM,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+SURFEX,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+VEGAS,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
+VISIT,cRoot,cLeaf,npp,fNloss,fNup,fBNF,fNdep
