@@ -1,6 +1,7 @@
 library(ncdf4)
 library(fields)
 library(dplyr)
+library(LSD)
 
 syshome <- Sys.getenv( "HOME" )
 source( paste( syshome, "/.Rprofile", sep="" ) )
@@ -48,7 +49,7 @@ for (imodl in do_modl$modl){
 	vec_dcroot <- as.vector(dcroot)
 
   ## get ratio of allocation belowground
-	froot <- croot / ( cleaf + croot )
+	froot <- croot / cleaf
 	froot_0 <- apply( froot[,,1:10], c(1,2), FUN=mean )
 	froot_1 <- apply( froot[,,(ltime-9):ltime], c(1,2), FUN=mean )
 	dfroot <- froot_1 / froot_0
@@ -140,7 +141,6 @@ for (imodl in do_modl$modl){
 
   }
 
-
 	df_tmp <- data.frame( modl=rep(imodl, ndata), dcroot=vec_dcroot, dfroot=vec_dfroot, dfnup=vec_dfnup, dfbnf=vec_dfbnf, dfnacq=vec_dfnacq, roi=vec_roi, roi_bnf=vec_roi_bnf )
 	df <- rbind( df, df_tmp )
 
@@ -148,20 +148,58 @@ for (imodl in do_modl$modl){
 
 save( df, file="data_trendy.Rdata" )
 
+cesar_bg <- read.csv( paste0( myhome, "/data/face/terrer17nphyt/terrer17nphyt.csv" ) )
+cesar_bg <- cesar_bg %>% mutate( dfnacq=nup_elev/nup_amb, dcroot=fr_elev/fr_amb ) %>% mutate( roi_bnf=dfnacq/dcroot )
+
+cesar_ag <- read.csv( paste0( myhome, "/data/face/terrer17nphyt/ANPPforBeni.csv" ) )
+cesar_ag <- cesar_ag %>% mutate( id=paste( SITE_Sps, N, myc, sep="_" ) )
+cesar_bg <- cesar_bg %>% left_join( dplyr::select( cesar_ag, id, ANPP ), by="id" ) %>% mutate( dcleaf=exp(ANPP) ) %>% mutate( dfroot=dcroot/dcleaf  )
+
+df_cesar <- cesar_bg %>% rename( modl=myc ) %>% mutate( dfbnf=NA, dfnup=NA, roi=NA ) %>% dplyr::select( modl, dcroot, dfroot, dfnup, dfbnf, dfnacq, roi, roi_bnf )
+
+df <- rbind( df, df_cesar )
+
+sub <- dplyr::select( df, modl ) %>% unique()
+sub <- sub %>% left_join( dplyr::select(modeltype, modl, col), by="modl" )
+
+sub$col[ which( sub$modl %in% c("ECM", "AM", "N-fixing") ) ] <- "grey70"
+
+pdf("dfroot_trendy.pdf", width=9, height=6 )
+	par( las=1 )
+	boxplot( dfroot ~ modl, data=df , outline=FALSE, col=sub$col )
+	abline( h=1, lty=3 )
+dev.off()
+
 par( las=1 )
-boxplot( dfroot ~ modl, data=df , outline=FALSE, col=modeltype$col )
+boxplot( dcroot ~ modl, data=df , outline=FALSE, col=sub$col, ylim=c(0,3) )
 abline( h=1, lty=3 )
 
-boxplot( dfnup ~ modl, data=df , outline=FALSE, col=modeltype$col )
+boxplot( dfnup ~ modl, data=df , outline=FALSE, col=sub$col )
 abline( h=1, lty=3 )
 
-boxplot( dfbnf ~ modl, data=df , outline=FALSE, col=modeltype$col )
+boxplot( dfnacq ~ modl, data=df , outline=FALSE, col=sub$col )
 abline( h=1, lty=3 )
 
-boxplot( roi ~ modl, data=df , outline=FALSE, col=modeltype$col )
+boxplot( dfbnf ~ modl, data=df , outline=FALSE, col=sub$col )
+abline( h=1, lty=3 )
+
+boxplot( roi ~ modl, data=df , outline=FALSE, col=sub$col )
 abline( h=1, lty=3 )
 
 
+with( dplyr::filter( df, modl=="CLM" ), plot( dcroot-1, dfnup-1, xlim=c(-1,3), ylim=c(-1,3), pch=16, col=rgb(0,0,0,0.3), main="CLM" ) )
+abline( h=0, lty=3 )
+abline( v=0, lty=3 )
 
+with( dplyr::filter( df, modl=="ISAM" ), plot( dcroot-1, dfnup-1, xlim=c(-1,3), ylim=c(-1,3), pch=16, col=rgb(0,0,0,0.3), main="ISAM" ) )
+abline( h=0, lty=3 )
+abline( v=0, lty=3 )
 
+with( dplyr::filter( df, modl=="LPJ-GUESS" ), plot( dcroot-1, dfnup-1, xlim=c(-1,3), ylim=c(-1,3), pch=16, col=rgb(0,0,0,0.3), main="LPJ-GUESS" ) )
+abline( h=0, lty=3 )
+abline( v=0, lty=3 )
+
+with( dplyr::filter( df, modl=="LPX-Bern" ), plot( dcroot-1, dfnup-1, xlim=c(-1,3), ylim=c(-1,3), pch=16, col=rgb(0,0,0,0.3), main="LPX-Bern" ) )
+abline( h=0, lty=3 )
+abline( v=0, lty=3 )
 
