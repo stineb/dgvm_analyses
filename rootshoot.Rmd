@@ -21,16 +21,16 @@ library(ggplot2)
 library(readr)
 library(stringr)
 
-availvars <- read_csv( "./availvars_trendy_v5_S1.csv" )
-filnams <- read_csv( "filnams_trendy_v5_S1.csv" )
-varnams <- read_csv( "varnams_trendy_v5_S1.csv" )
-modeltype <- read_csv( "modeltype_trendy_v5.csv" ) %>% 
-  mutate( col=ifelse( cn==1, "royalblue3", "springgreen3" ) )
+availvars <- read_csv( "./availvars_trendy_v8_S2.csv" )
+filnams <- read_csv( "filnams_trendy_v8_S2.csv" )
+# varnams <- read_csv( "varnams_trendy_v8_S2.csv" )
+# modeltype <- read_csv( "modeltype_trendy_v8.csv" ) %>% 
+  # mutate( col=ifelse( cn==1, "royalblue3", "springgreen3" ) )
 ```
 
-## Process TRENDY files
+## Process TRENDY v8 files
 
-From downloaded TRENDY outputs (here, simulation S1: only CO2 is changing), get global fields of mass fractions $M_R, M_F, M_W$ and root:shoot ratio $(M_F + M_W)/M_R$ as the mean over several years. This is implemented in a Bash script.
+From downloaded TRENDY outputs (here, simulation S2: only CO2 is changing), get global fields of mass fractions $M_R, M_F, M_W$ and root:shoot ratio $(M_F + M_W)/M_R$ as the mean over several years. This is implemented in a Bash script.
 
 ### Wood mass fraction
 
@@ -49,8 +49,8 @@ df <- filnams %>%
     by = "modl"
   ) %>% 
   mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
-  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v5/", modl, "/S1/")) %>% 
-  mutate(cmd = paste("./calc_mass_fraction.sh", filn_cWood, filn_cVeg, varn_cWood, varn_cVeg, dir))
+  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v8/")) %>% 
+  mutate(cmd = paste("./calc_mass_fraction.sh", filn_cWood, filn_cVeg, dir))
 ```
 
 Execute function using CDO.
@@ -75,8 +75,8 @@ df <- filnams %>%
     by = "modl"
   ) %>% 
   mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
-  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v5/", modl, "/S1/")) %>% 
-  mutate(cmd = paste("./calc_mass_fraction.sh", filn_cLeaf, filn_cVeg, varn_cLeaf, varn_cVeg, dir))
+  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v8/")) %>% 
+  mutate(cmd = paste("./calc_mass_fraction.sh", filn_cLeaf, filn_cVeg, dir))
 ```
 
 Execute function using CDO.
@@ -101,8 +101,8 @@ df <- filnams %>%
     by = "modl"
   ) %>% 
   mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
-  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v5/", modl, "/S1/")) %>% 
-  mutate(cmd = paste("./calc_mass_fraction.sh", filn_cRoot, filn_cVeg, varn_cRoot, varn_cVeg, dir))
+  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v8/")) %>% 
+  mutate(cmd = paste("./calc_mass_fraction.sh", filn_cRoot, filn_cVeg, dir))
 ```
 
 Execute function using CDO.
@@ -135,6 +135,7 @@ modls_III <- availvars %>%
 There is no model available for III but not for II:
 ```{r}
 !(modls_III %in% modls_II)
+!(modls_II %in% modls_III)
 ```
 Hence, let's just do it with `modls_II`:
 ```{r}
@@ -147,6 +148,11 @@ df <- filnams %>%
     by = "modl"
   ) %>% 
   mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
-  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v5/", modl, "/S1/")) %>% 
-  mutate(cmd = paste("./calc_rootshoot_ratio.sh", filn_cRoot, filn_cVeg, varn_cRoot, varn_cVeg, dir))
+  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v8/")) %>% 
+  mutate(cmd = paste("./calc_rootshoot_ratio.sh", filn_cRoot, filn_cVeg, dir))
+```
+
+Execute function using CDO.
+```{r}
+out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE))
 ```
