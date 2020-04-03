@@ -1,5 +1,5 @@
 modl,cLeaf,cRoot,cVeg,cWood,npp,fNloss,fNup,fBNF,fNdep
-CABLE-POP,CABLE-POP_S2_cLeaf.nc,CABLE-POP_S2_cRoot.n,CABLE-POP_S2_cVeg.nc,CABLE-POP_S2_cWood.nc,,,,,
+CABLE-POP,CABLE-POP_S2_cLeaf.nc,CABLE-POP_S2_cRoot.nc,CABLE-POP_S2_cVeg.nc,CABLE-POP_S2_cWood.nc,,,,,
 CLASS-CTEM,CLASS-CTEM_S2_cLeaf.nc,CLASS-CTEM_S2_cRoot.nc,CLASS-CTEM_S2_cVeg.nc,CLASS-CTEM_S2_cWood.nc,,,,,
 CLM5.0,,,,,,,,,
 CLM5.0_Corrected,CLM5.0_S2_cLeaf.nc,CLM5.0_S2_cRoot.nc,CLM5.0_S2_cVeg.nc,CLM5.0_S2_cWood.nc,,,,,
