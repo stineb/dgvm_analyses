@@ -1,0 +1,57 @@
+---
+title: "Root shoot ratio in DGVMs"
+author: "Benjamin D. Stocker"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+# output:
+#   pdf_document:
+#     toc: true
+#     toc_depth: 2
+---
+
+```{r include=FALSE}
+library(dplyr)
+library(purrr)
+library(tidyr)
+library(ggplot2)
+library(readr)
+library(stringr)
+
+availvars <- read_csv( "./availvars_trendy_v5_S1.csv" )
+filnams <- read_csv( "filnams_trendy_v5_S1.csv" )
+varnams <- read_csv( "varnams_trendy_v5_S1.csv" )
+modeltype <- read_csv( "modeltype_trendy_v5.csv" ) %>% 
+  mutate( col=ifelse( cn==1, "royalblue3", "springgreen3" ) )
+```
+
+## Process TRENDY files
+
+From downloaded TRENDY outputs (here, simulation S1: only CO2 is changing), get global fields of mass fractions $M_R, M_F, M_W$ and root:shoot ratio $(M_F + M_W)/M_R$ as the mean over several years. This is implemented in a Bash script.
+
+### Wood mass fraction
+
+Determine for which models we have all the files (cWood and cVeg) to calculate wood mass fractions.
+```{r}
+modls_mw <- availvars %>% 
+  filter(cWood==1 & cVeg==1) %>% 
+  pull(modl)
+df <- filnams %>% 
+  filter(modl %in% modls_mw) %>% 
+  select(modl, filn_cWood = cWood, filn_cVeg = cVeg) %>% 
+  left_join(
+    varnams %>% 
+      select(modl, varn_cWood = cWood, varn_cVeg = cVeg),
+    by = "modl"
+  ) %>% 
+  mutate_at(vars(starts_with("filn_")), ~str_remove(., ".nc")) %>% 
+  mutate(dir = paste0("~/data/trendy/v5/", modl, "/S1/"))
+```
+
+
+```
+./proc_trendy_rootshoot.sh
+```

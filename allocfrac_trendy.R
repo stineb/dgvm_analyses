@@ -2,20 +2,21 @@ library(ncdf4)
 library(fields)
 library(dplyr)
 library(LSD)
+library(readr)
 
-syshome <- Sys.getenv( "HOME" )
-source( paste( syshome, "/.Rprofile", sep="" ) )
-
-availvars <- read.csv( "availvars_trendy_v5_S1.csv" )
-filnams <- read.csv( "filnams_trendy_v5_S1.csv", as.is=TRUE )
-varnams <- read.csv( "varnams_trendy_v5_S1.csv", as.is=TRUE )
-modeltype <- read.csv( "modeltype_trendy_v5.csv", as.is=TRUE )
-modeltype <- modeltype %>% mutate( col=ifelse( cn==1, "royalblue3", "springgreen3" ) )
+availvars <- read_csv( "availvars_trendy_v5_S1.csv" )
+filnams <- read_csv( "filnams_trendy_v5_S1.csv" )
+varnams <- read_csv( "varnams_trendy_v5_S1.csv" )
+modeltype <- read_csv( "modeltype_trendy_v5.csv" ) %>% 
+  mutate( col=ifelse( cn==1, "royalblue3", "springgreen3" ) )
 
 do_modl <- availvars %>% dplyr::filter( cRoot==1 & cLeaf==1 )
 
-df <- data.frame()
+if (file.exists("data_trendy.Rdata")){
+	load("data_trendy.Rdata")
+} else {
 
+df <- data.frame()
 for (imodl in do_modl$modl){
 
   dir <- paste0( myhome, "data/trendy/", imodl,"/S1/" )
@@ -145,13 +146,14 @@ for (imodl in do_modl$modl){
 	df <- rbind( df, df_tmp )
 
 }
-
 save( df, file="data_trendy.Rdata" )
+}
 
-cesar_bg <- read.csv( paste0( myhome, "/data/face/terrer17nphyt/terrer17nphyt.csv" ) )
+
+cesar_bg <- read_csv( paste0( myhome, "/data/face/terrer17nphyt/terrer17nphyt.csv" ) )
 cesar_bg <- cesar_bg %>% mutate( dfnacq=nup_elev/nup_amb, dcroot=fr_elev/fr_amb ) %>% mutate( roi_bnf=dfnacq/dcroot )
 
-cesar_ag <- read.csv( paste0( myhome, "/data/face/terrer17nphyt/ANPPforBeni.csv" ) )
+cesar_ag <- read_csv( paste0( myhome, "/data/face/terrer17nphyt/ANPPforBeni.csv" ) )
 cesar_ag <- cesar_ag %>% mutate( id=paste( SITE_Sps, N, myc, sep="_" ) )
 cesar_bg <- cesar_bg %>% left_join( dplyr::select( cesar_ag, id, ANPP ), by="id" ) %>% mutate( dcleaf=exp(ANPP) ) %>% mutate( dfroot=dcroot/dcleaf  )
 
