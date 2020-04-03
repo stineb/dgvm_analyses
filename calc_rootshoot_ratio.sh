@@ -20,15 +20,15 @@
 # For example: dir="/cluster/home/bestocke/data/trendy/v5/CLASS-CTEM/S1/"
 
 ## select years
-cdo selyear,1986/2015 ${5}${1}.nc ${5}${1}_SUB.nc
-cdo selyear,1986/2015 ${5}${2}.nc ${5}${2}_SUB.nc
+cdo -O selyear,1986/2015 ${5}${1}.nc ${5}${1}_SUB.nc
+cdo -O selyear,1986/2015 ${5}${2}.nc ${5}${2}_SUB.nc
 
 ## get shoot mass from cShoot = cVeg - cRoot
-cdo sub ${5}${2}_SUB.nc ${5}${1}_SUB.nc ${5}${2}_SHOOT_SUB.nc
+cdo -O sub ${5}${2}_SUB.nc ${5}${1}_SUB.nc ${5}${2}_SHOOT_SUB.nc
 
 ## divide cRoot / cShoot
-cdo div ${5}${1}_SUB.nc ${5}${2}_SHOOT_SUB.nc ${5}${1}_ROOTSHOOTRATIO.nc
+cdo -O div ${5}${1}_SUB.nc ${5}${2}_SHOOT_SUB.nc ${5}${1}_ROOTSHOOTRATIO.nc
 
 ## take mean across years
-cdo timmean ${5}${1}_ROOTSHOOTRATIO.nc ${5}${1}_ROOTSHOOTRATIO_MEAN.nc
+cdo -O timmean ${5}${1}_ROOTSHOOTRATIO.nc ${5}${1}_ROOTSHOOTRATIO_MEAN.nc
 

@@ -20,12 +20,12 @@
 # For example: dir="/cluster/home/bestocke/data/trendy/v5/CLASS-CTEM/S1/"
 
 ## select years
-cdo selyear,1986/2015 ${5}${1}.nc ${5}${1}_SUB.nc
-cdo selyear,1986/2015 ${5}${2}.nc ${5}${2}_SUB.nc
+cdo -O selyear,1986/2015 ${5}${1}.nc ${5}${1}_SUB.nc
+cdo -O selyear,1986/2015 ${5}${2}.nc ${5}${2}_SUB.nc
 
 ## divide
-cdo div ${5}${1}_SUB.nc ${5}${2}_SUB.nc ${5}${1}MF.nc
+cdo -O div ${5}${1}_SUB.nc ${5}${2}_SUB.nc ${5}${1}MF.nc
 
 ## take mean across years
-cdo timmean ${5}${1}MF.nc ${5}${1}MF_MEAN.nc
+cdo -O timmean ${5}${1}MF.nc ${5}${1}MF_MEAN.nc
 
