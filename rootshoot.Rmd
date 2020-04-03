@@ -21,8 +21,6 @@ library(ggplot2)
 library(readr)
 library(stringr)
 
-system("source proc_trendy_rootshoot.sh")
-
 availvars <- read_csv( "./availvars_trendy_v5_S1.csv" )
 filnams <- read_csv( "filnams_trendy_v5_S1.csv" )
 varnams <- read_csv( "varnams_trendy_v5_S1.csv" )
@@ -50,14 +48,14 @@ df <- filnams %>%
       select(modl, varn_cWood = cWood, varn_cVeg = cVeg),
     by = "modl"
   ) %>% 
-  mutate_at(vars(starts_with("filn_")), ~str_remove(., ".nc")) %>% 
+  mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
   mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v5/", modl, "/S1/")) %>% 
-  mutate(cmd = paste("calc_mass_fraction_wood", filn_cWood, filn_cVeg, varn_cWood, varn_cVeg, dir))
+  mutate(cmd = paste("./calc_mass_fraction_wood.sh", filn_cWood, filn_cVeg, varn_cWood, varn_cVeg, dir))
 ```
 
 Execute function using CDO.
 ```{r}
-purrr::map(as.list(df %>% pull(cmd)), ~system(.))
+out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE))
 ```
 
 
