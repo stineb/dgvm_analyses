@@ -21,6 +21,8 @@ library(ggplot2)
 library(readr)
 library(stringr)
 
+system("source proc_trendy_rootshoot.sh")
+
 availvars <- read_csv( "./availvars_trendy_v5_S1.csv" )
 filnams <- read_csv( "filnams_trendy_v5_S1.csv" )
 varnams <- read_csv( "varnams_trendy_v5_S1.csv" )
@@ -34,7 +36,7 @@ From downloaded TRENDY outputs (here, simulation S1: only CO2 is changing), get 
 
 ### Wood mass fraction
 
-Determine for which models we have all the files (cWood and cVeg) to calculate wood mass fractions.
+Determine for which models we have all the files (cWood and cVeg) to calculate wood mass fractions and create system command.
 ```{r}
 modls_mw <- availvars %>% 
   filter(cWood==1 & cVeg==1) %>% 
@@ -51,7 +53,10 @@ df <- filnams %>%
   mutate_at(vars(starts_with("filn_")), ~str_remove(., ".nc")) %>% 
   mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v5/", modl, "/S1/")) %>% 
   mutate(cmd = paste("calc_mass_fraction_wood", filn_cWood, filn_cVeg, varn_cWood, varn_cVeg, dir))
+```
 
+Execute function using CDO.
+```{r}
 purrr::map(as.list(df %>% pull(cmd)), ~system(.))
 ```
 
