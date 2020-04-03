@@ -134,5 +134,19 @@ modls_III <- availvars %>%
 
 There is no model available for III but not for II:
 ```{r}
-!(modls_II %in% modls_III)
+!(modls_III %in% modls_II)
+```
+Hence, let's just do it with `modls_II`:
+```{r}
+df <- filnams %>% 
+  filter(modl %in% modls_II) %>% 
+  select(modl, filn_cRoot = cRoot, filn_cVeg = cVeg) %>% 
+  left_join(
+    varnams %>% 
+      select(modl, varn_cRoot = cRoot, varn_cVeg = cVeg),
+    by = "modl"
+  ) %>% 
+  mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
+  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v5/", modl, "/S1/")) %>% 
+  mutate(cmd = paste("./calc_rootshoot_ratio.sh", filn_cRoot, filn_cVeg, varn_cRoot, varn_cVeg, dir))
 ```
