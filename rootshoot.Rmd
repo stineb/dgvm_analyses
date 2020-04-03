@@ -39,6 +39,7 @@ Determine for which models we have all the files (cWood and cVeg) to calculate w
 modls_mw <- availvars %>% 
   filter(cWood==1 & cVeg==1) %>% 
   pull(modl)
+
 df <- filnams %>% 
   filter(modl %in% modls_mw) %>% 
   select(modl, filn_cWood = cWood, filn_cVeg = cVeg) %>% 
@@ -48,7 +49,10 @@ df <- filnams %>%
     by = "modl"
   ) %>% 
   mutate_at(vars(starts_with("filn_")), ~str_remove(., ".nc")) %>% 
-  mutate(dir = paste0("~/data/trendy/v5/", modl, "/S1/"))
+  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v5/", modl, "/S1/")) %>% 
+  mutate(cmd = paste("calc_mass_fraction_wood", filn_cWood, filn_cVeg, varn_cWood, varn_cVeg, dir))
+
+purrr::map(as.list(df %>% pull(cmd)), ~system(.))
 ```
 
 

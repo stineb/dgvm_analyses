@@ -1,33 +1,36 @@
 #!/bin/bash
 
-##----------------------------------------------------
-## Calculate the wood mass fraction
-##----------------------------------------------------
-## Arguments:
-## 1. File name cWood
-filn_cwood="CLASS-CTEM_S1_cWood.nc"
+calc_mass_fraction_wood(){
+	##----------------------------------------------------
+	## Calculate the wood mass fraction
+	##----------------------------------------------------
+	## Arguments:
+	## 1. File name cWood
+	# For example: filn_cwood="CLASS-CTEM_S1_cWood"
 
-## 2. File name cVeg
-filn_cveg="CLASS-CTEM_S1_cVeg.nc"
+	## 2. File name cVeg
+	# For example: filn_cveg="CLASS-CTEM_S1_cVeg"
 
-## 3. Variable name cWood
-varn_cwood="cWood"
+	## 3. Variable name cWood
+	# For example: varn_cwood="cWood"
 
-## 4. Variable name cVeg
-varn_cveg="cVeg"
+	## 4. Variable name cVeg
+	# For example: varn_cveg="cVeg"
 
-## 5. Directory path
-dir="~/data/trendy/v5/CLASS-CTEM/S1/"
+	## 5. Directory path
+	# For example: dir="/cluster/home/bestocke/data/trendy/v5/CLASS-CTEM/S1/"
 
-## select years
-cdo selyear,1986/2015 ${dir}${filn_cwood}.nc ${dir}${filn_cwood}_SUB.nc
-cdo selyear,1986/2015 ${dir}${filn_cveg}.nc ${dir}${filn_cveg}_SUB.nc
+	## select years
+	cdo selyear,1986/2015 ${5}${1}.nc ${5}${1}_SUB.nc
+	cdo selyear,1986/2015 ${5}${2}.nc ${5}${2}_SUB.nc
 
-## divide
-cdo div ${dir}${filn_cwood}_SUB.nc ${dir}${filn_cveg}_SUB.nc ${dir}${filn_cwood}MF.nc
+	## divide
+	cdo div ${5}${1}_SUB.nc ${5}${2}_SUB.nc ${5}${1}MF.nc
 
-## take mean across years
-cdo timmean ${dir}${filn_cwood}MF.nc ${dir}${filn_cwood}MF_MEAN.nc
+	## take mean across years
+	cdo timmean ${5}${1}MF.nc ${5}${1}MF_MEAN.nc
+}
+
 
 
 
@@ -111,8 +114,6 @@ cdo timmean ${dir}${filn_cwood}MF.nc ${dir}${filn_cwood}MF_MEAN.nc
 
 # here=`pwd`
 
-# calc_mass_fraction_wood(){
-# }
 
 
 
