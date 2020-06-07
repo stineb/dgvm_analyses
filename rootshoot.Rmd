@@ -23,7 +23,7 @@ library(stringr)
 
 availvars <- read_csv( "./availvars_trendy_v8_S2.csv" )
 filnams <- read_csv( "filnams_trendy_v8_S2.csv" )
-# varnams <- read_csv( "varnams_trendy_v8_S2.csv" )
+varnams <- read_csv( "varnams_trendy_v8_S2.csv" )
 # modeltype <- read_csv( "modeltype_trendy_v8.csv" ) %>% 
   # mutate( col=ifelse( cn==1, "royalblue3", "springgreen3" ) )
 ```
