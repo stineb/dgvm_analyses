@@ -126,7 +126,7 @@ gdf <- gdf %>%
 
 Some tests.
 ```{r}
-testdf <- gdf$data[[2]] %>% 
+testdf <- gdf$data[[1]] %>% 
   mutate(dnpp = npp_final / npp_init)
 
 testdf$dnpp %>% quantile(., probs = c(0.1, 0.5, 0.9), na.rm=T)
@@ -150,7 +150,7 @@ get_deltas <- function(df){
 get_csoil_star <- function(df){
   df %>% 
     mutate(csoil_star_init  = csoil_init) %>% 
-    # mutate(csoil_change = csoil_final - csoil_init) %>%   # overwriting what's read from file
+    mutate(csoil_change = csoil_final - csoil_init) %>%   # overwriting what's read from file
     mutate(csoil_star_final = csoil_final / (1.0 - csoil_change/npp_final ))
 }
 
@@ -161,82 +161,80 @@ gdf <- gdf %>%
 
 Plot relationships:
 
-<!-- ### Biomass vs. NPP change -->
+### Biomass vs. NPP change
 
-<!-- ```{r} -->
-<!-- ## just one model -->
-<!-- modobs <- gdf$data[[2]] %>%  -->
-<!--   dplyr::filter(dnpp < 2 & dnpp > -2 & dcveg < 2 & dcveg > -2) %>%  -->
-<!--   dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>%  -->
-<!--   analyse_modobs2("dnpp", "dcveg", type = "heat", plot_subtitle = FALSE, plot_linmod = FALSE) -->
-<!-- modobs$gg + -->
-<!--   xlim(c(-0.5,1)) + ylim(c(-0.5,1)) + -->
-<!--   labs(title = gdf$modl[[2]]) -->
+```{r}
+## just one model
+modobs <- gdf$data[[2]] %>%
+  dplyr::filter(dnpp < 2 & dnpp > -2 & dcveg < 2 & dcveg > -2) %>%
+  dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>%
+  analyse_modobs2("dnpp", "dcveg", type = "heat", plot_subtitle = FALSE, plot_linmod = FALSE)
+modobs$gg +
+  xlim(c(-0.5,1)) + ylim(c(-0.5,1)) +
+  labs(title = gdf$modl[[2]])
 
-<!-- ## all models pooled -->
-<!-- gdf %>% -->
-<!--   unnest(data) %>% -->
-<!--   dplyr::filter(dnpp < 2 & dnpp > -2 & dcveg < 2 & dcveg > -2) %>%  -->
-<!--   dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>%  -->
-<!--   ggplot(aes(x = dnpp, y = dcveg)) + -->
-<!--   stat_density_2d(aes(fill = after_stat(level)), geom = "polygon") +  -->
-<!--   theme_classic() + -->
-<!--   geom_abline(intercept=0, slope=1, linetype="dotted") + -->
-<!--   scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5)) -->
+## all models pooled
+gdf %>%
+  unnest(data) %>%
+  dplyr::filter(dnpp < 2 & dnpp > -2 & dcveg < 2 & dcveg > -2) %>%
+  dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>%
+  ggplot(aes(x = dnpp, y = dcveg)) +
+  stat_density_2d(aes(fill = after_stat(level)), geom = "polygon") +
+  theme_classic() +
+  geom_abline(intercept=0, slope=1, linetype="dotted") +
+  scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5))
 
-<!-- ## all models separately (facet_grid) -->
-<!-- gdf %>% -->
-<!--   dplyr::filter(modl != "CABLE-POP") %>%  -->
-<!--   unnest(data) %>% -->
-<!--   bind_rows( -->
-<!--     ., -->
-<!--     gdf %>% -->
-<!--       dplyr::filter(modl != "CABLE-POP") %>%  -->
-<!--       unnest(data) %>% -->
-<!--       mutate(modl = "ALL") -->
-<!--   ) %>%  -->
-<!--   dplyr::filter(dnpp>-0.9) %>% # remove points where veg collapses -->
-<!--   dplyr::filter(dnpp < 2 & dnpp > -2 & dcveg < 2 & dcveg > -2) %>%  -->
-<!--   dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>%  -->
-<!--   ggplot(aes(x = dnpp, y = dcveg)) + -->
-<!--   stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") +  -->
-<!--   theme_classic() + -->
-<!--   geom_abline(intercept=0, slope=1, linetype="dotted") + -->
-<!--   scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5), -->
-<!--                        guide = "legend") + -->
-<!--   facet_wrap(. ~ modl, nrow = 3,  scales = "free") + -->
-<!--   xlim(-0.1, 0.9) + ylim(-0.1, 0.9) +  -->
-<!--   theme(legend.position = "none") -->
-<!--   # scale_fill_binned(colors = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5)) + -->
-<!--   # guides(fill = guide_colorsteps()) -->
-<!--   # scale_fill_binned(type = "viridis") -->
+## all models separately (facet_grid)
+gdf %>%
+  dplyr::filter(modl != "CABLE-POP") %>%
+  unnest(data) %>%
+  bind_rows(
+    .,
+    gdf %>%
+      dplyr::filter(modl != "CABLE-POP") %>%
+      unnest(data) %>%
+      mutate(modl = "ALL")
+  ) %>%
+  dplyr::filter(dnpp>-0.9) %>% # remove points where veg collapses
+  dplyr::filter(dnpp < 2 & dnpp > -2 & dcveg < 2 & dcveg > -2) %>%
+  dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>%
+  ggplot(aes(x = dnpp, y = dcveg)) +
+  stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") +
+  theme_classic() +
+  geom_abline(intercept=0, slope=1, linetype="dotted") +
+  scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5),
+                       guide = "legend") +
+  facet_wrap(. ~ modl, nrow = 3,  scales = "free") +
+  xlim(-0.1, 0.9) + ylim(-0.1, 0.9) +
+  theme(legend.position = "none")
+  # scale_fill_binned(colors = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5)) +
+  # guides(fill = guide_colorsteps())
+  # scale_fill_binned(type = "viridis")
 
-<!-- # modobs <- gdf %>%  -->
-<!-- #   unnest(data) %>%  -->
-<!-- #   dplyr::filter(dnpp < 2 & dnpp > -2 & dcveg < 2 & dcveg > -2) %>%  -->
-<!-- #   dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>%  -->
-<!-- #   analyse_modobs2("dnpp", "dcveg", type = "hex", plot_subtitle = FALSE, plot_linmod = FALSE) -->
-<!-- # modobs$gg + -->
-<!-- #   xlim(c(-0.5,1)) + ylim(c(-0.5,1)) + -->
-<!-- #   labs(title = "All models pooled") -->
-<!-- ``` -->
+# modobs <- gdf %>%
+#   unnest(data) %>%
+#   dplyr::filter(dnpp < 2 & dnpp > -2 & dcveg < 2 & dcveg > -2) %>%
+#   dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>%
+#   analyse_modobs2("dnpp", "dcveg", type = "hex", plot_subtitle = FALSE, plot_linmod = FALSE)
+# modobs$gg +
+#   xlim(c(-0.5,1)) + ylim(c(-0.5,1)) +
+#   labs(title = "All models pooled")
+```
 
-<!-- ### SOC vs. NPP change -->
+### SOC vs. NPP change
 
+```{r}
+## one model
+modobs <- gdf$data[[2]] %>%
+  dplyr::filter(dnpp < 2 & dnpp > -2 & dcsoil_star < 2 & dcsoil_star > -2) %>%
+  dplyr::filter(!is.nan(dnpp), !is.nan(dcsoil_star), !is.infinite(dnpp), !is.infinite(dcsoil_star)) %>%
+  analyse_modobs2("dnpp", "dcsoil_star", type = "heat", plot_subtitle = FALSE, plot_linmod = FALSE)
+modobs$gg +
+  xlim(c(-0.5,1)) + ylim(c(-0.5,1)) +
+  labs(title = gdf$modl[[2]])
+```
 
-
-<!-- ```{r} -->
-<!-- ## one model -->
-<!-- modobs <- gdf$data[[2]] %>%  -->
-<!--   dplyr::filter(dnpp < 2 & dnpp > -2 & dcsoil_star < 2 & dcsoil_star > -2) %>%  -->
-<!--   dplyr::filter(!is.nan(dnpp), !is.nan(dcsoil_star), !is.infinite(dnpp), !is.infinite(dcsoil_star)) %>%  -->
-<!--   analyse_modobs2("dnpp", "dcsoil_star", type = "heat", plot_subtitle = FALSE, plot_linmod = FALSE) -->
-<!-- modobs$gg + -->
-<!--   xlim(c(-0.5,1)) + ylim(c(-0.5,1)) + -->
-<!--   labs(title = gdf$modl[[2]]) -->
-<!-- ``` -->
-
-<!-- ### SOC vs. biomass change -->
+### SOC vs. biomass change
 
 ```{r}
 # one model
@@ -255,28 +253,8 @@ modobs <- gdf %>%
   dplyr::filter(!is.nan(dcveg), !is.nan(dcsoil_star), !is.infinite(dcveg), !is.infinite(dcsoil_star)) %>% 
   analyse_modobs2("dcveg", "dcsoil_star", type = "hex", plot_subtitle = FALSE, plot_linmod = FALSE)
 modobs$gg +
-  xlim(c(-0.5,1)) + ylim(c(-0.5,1)) +
+  xlim(c(-0.1,0.7)) + ylim(c(-0.1,0.7)) +
   labs(title = "All models pooled")
-
-## all models separately (facet_grid)
-gdf %>%
-  dplyr::filter(modl != "CABLE-POP") %>% 
-  unnest(data) %>%
-  bind_rows(
-    .,
-    gdf %>%
-      dplyr::filter(modl != "CABLE-POP") %>% 
-      unnest(data) %>%
-      mutate(modl = "ALL")
-  ) %>% 
-  dplyr::filter(dcsoil_star < 2 & dcsoil_star > -2 & dcveg < 2 & dcveg > -2) %>% 
-  dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>% 
-  ggplot(aes(x = dcveg, y = dcsoil_star)) +
-  stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") + 
-  theme_classic() +
-  geom_abline(intercept=0, slope=1, linetype="dotted") +
-  scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5)) +
-  facet_wrap(. ~ modl, nrow = 2,  scales = "free")
 
 ## cSoil*, all models separately (facet_grid)
 gdf %>%
@@ -298,9 +276,13 @@ gdf %>%
   scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5),
                        guide = "legend") +
   facet_wrap(. ~ modl, nrow = 3,  scales = "free") +
-  xlim(-0.1, 0.9) + ylim(-0.1, 0.9) + 
+  xlim(-0.1, 1) + ylim(-0.1, 1) + 
+  labs(x = expression(paste(Delta, "C"[veg], "/C"[veg])),
+       y = expression(paste(Delta, "C"[soil], "/C"[soil]))) +
   theme(legend.position = "none",
         strip.background = element_blank())
+
+ggsave("fig/csoil_cveg_trendy_s1_bymodl.pdf", width = 9, height = 7)
 
 ## cSoil, all models separately (facet_grid)
 gdf %>%
