@@ -26,18 +26,16 @@ filnams <- read_csv( "filnams_trendy_v8_S2.csv" )
 varnams <- read_csv( "varnams_trendy_v8_S2.csv" )
 
 # modeltype <- read_csv( "modeltype_trendy_v8.csv" ) %>% 
-  # mutate( col=ifelse( cn==1, "royalblue3", "springgreen3" ) )
+# mutate( col=ifelse( cn==1, "royalblue3", "springgreen3" ) )
 ```
 
 ## Process TRENDY v8 files
 
-From downloaded TRENDY outputs (here, simulation S2: only CO2 is changing), get global fields of mass fractions $M_R, M_F, M_W$ and root:shoot ratio $(M_F + M_W)/M_R$ as the mean over several years. This is implemented in a Bash script.
+From downloaded TRENDY outputs (here, simulation S2: only CO2 is changing), get global fields of mass fractions $M_R, M_F, M_W$ and root:shoot ratio $(M_F + M_W)/M_R$ as the mean over several years. This is implemented in Bash scripts.
 
 ### Get forest mask
 
-Use >10% tree cover cutoff to determine forest mask. Information about tree vs. grass-PFT coverage needs to be extracted from NetCDF files for each model separately. This is done by hand and information saved in `pft_tree_grass_trendy_v8.csv`.
-
-Ingest information about tree-PFT indeces.
+Information about tree vs. grass-PFT coverage needs to be extracted from NetCDF files for each model separately. This is done by hand and information saved in `pft_tree_grass_trendy_v8.csv`.
 ```{r}
 df_treegrass <- read_csv("pft_tree_grass_trendy_v8.csv")
 
@@ -70,7 +68,7 @@ Execute function using CDO.
 out <- purrr::map(as.list(df_nc %>% pull(cmd)), ~system(., intern = TRUE))
 ```
 
-read PFT cover data for each model (annual mean files)
+Read PFT cover data for each model (annual mean files)
 ```{r}
 dir <- "~/data/trendy/v8/"
 df_nc <- df_nc %>% 
@@ -85,58 +83,62 @@ idx <- which(df_nc$modl == modl)
 nc <- df_nc$nc[[idx]]
 nc$vars$landCoverFrac %>% dim()
 nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
-df_nc$nc_tree[[idx]] <- nc
+df_nc$nc[[idx]] <- nc
 
 modl <- "CLASS-CTEM"
 idx <- which(df_nc$modl == modl)
 nc <- df_nc$nc[[idx]]
 nc$vars$landCoverFrac %>% dim()
 nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
-df_nc$nc_tree[[idx]] <- nc
+df_nc$nc[[idx]] <- nc
+
+## Missing CLM5.0_Corrected
 
 modl <- "ISAM"
 idx <- which(df_nc$modl == modl)
 nc <- df_nc$nc[[idx]]
 nc$vars$landCoverFrac %>% dim()
 nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
-df_nc$nc_tree[[idx]] <- nc
+df_nc$nc[[idx]] <- nc
 
-modl <- "JSBACH"
-idx <- which(df_nc$modl == modl)
-nc <- df_nc$nc[[idx]]
-nc$vars$landCoverFrac %>% dim()
-nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[list_tree_pft_id[[modl]],, ], MARGIN = c(2,3), FUN = sum )
-df_nc$nc_tree[[idx]] <- nc
+# modl <- "JSBACH"
+# idx <- which(df_nc$modl == modl)
+# nc <- df_nc$nc[[idx]]
+# nc$vars$landCoverFrac %>% dim()
+# nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[list_tree_pft_id[[modl]],, ], MARGIN = c(2,3), FUN = sum )
+# df_nc$nc[[idx]] <- nc
 
-## info not available for JULES
-modl <- "JULES-ES-1.0"
-idx <- which(df_nc$modl == modl)
-nc <- df_nc$nc[[idx]]
-nc$vars$landCoverFrac %>% dim()
-# nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
-df_nc$nc_tree[[idx]] <- NA
+# ## info not available for JULES
+# modl <- "JULES-ES-1.0"
+# idx <- which(df_nc$modl == modl)
+# nc <- df_nc$nc[[idx]]
+# nc$vars$landCoverFrac %>% dim()
+# # nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
+# df_nc$nc[[idx]] <- NA
 
 modl <- "LPJ-GUESS"
 idx <- which(df_nc$modl == modl)
 nc <- df_nc$nc[[idx]]
 nc$vars$landCoverFrac %>% dim()
 nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[ list_tree_pft_id[[modl]],,], MARGIN = c(2,3), FUN = sum )
-df_nc$nc_tree[[idx]] <- nc
+df_nc$nc[[idx]] <- nc
 
 modl <- "LPX-Bern"
 idx <- which(df_nc$modl == modl)
 nc <- df_nc$nc[[idx]]
 nc$vars$landCoverFrac %>% dim()
 nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[list_tree_pft_id[[modl]],,], MARGIN = c(2,3), FUN = sum )
-df_nc$nc_tree[[idx]] <- nc
+df_nc$nc[[idx]] <- nc
 
 modl <- "ORCHIDEE"
 idx <- which(df_nc$modl == modl)
 nc <- df_nc$nc[[idx]]
 nc$vars$landCoverFrac %>% dim()
+ndim_pft <- dim(nc$vars$landCoverFrac)[3]
+nc$vars$landCoverFrac <- nc$vars$landCoverFrac[,,(ndim_pft:1)]
 nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
 nc$lat <- rev(nc$lat) ## flip latitude
-df_nc$nc_tree[[idx]] <- nc
+df_nc$nc[[idx]] <- nc
 
 modl <- "ORCHIDEE-CNP"
 idx <- which(df_nc$modl == modl)
@@ -144,55 +146,59 @@ nc <- df_nc$nc[[idx]]
 nc$vars$landCoverFrac %>% dim()
 nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
 nc$lat <- rev(nc$lat) ## flip latitude
-df_nc$nc_tree[[idx]] <- nc
+df_nc$nc[[idx]] <- nc
 
-modl <- "SDGVM"
-idx <- which(df_nc$modl == modl)
-nc <- df_nc$nc[[idx]]
-nc$vars$landCoverFrac %>% dim()
-nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
-df_nc$nc_tree[[idx]] <- nc
+# modl <- "SDGVM"
+# idx <- which(df_nc$modl == modl)
+# nc <- df_nc$nc[[idx]]
+# nc$vars$landCoverFrac %>% dim()
+# nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
+# df_nc$nc[[idx]] <- nc
+# 
+# modl <- "VISIT"
+# idx <- which(df_nc$modl == modl)
+# nc <- df_nc$nc[[idx]]
+# nc$vars$landCoverFrac %>% dim()
+# nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
+# df_nc$nc[[idx]] <- nc
 
-modl <- "VISIT"
-idx <- which(df_nc$modl == modl)
-nc <- df_nc$nc[[idx]]
-nc$vars$landCoverFrac %>% dim()
-nc$vars$landCoverFrac <- apply( nc$vars$landCoverFrac[,, list_tree_pft_id[[modl]] ], MARGIN = c(1,2), FUN = sum )
-df_nc$nc_tree[[idx]] <- nc
+use_modls <- c("CABLE-POP", "CLASS-CTEM", "ISAM", "LPJ-GUESS", "LPX-Bern", "ORCHIDEE", "ORCHIDEE-CNP")
+
+df_nc <- df_nc %>% 
+  dplyr::filter(modl %in% use_modls)
 ```
 
 Look at some data.
 ```{r}
-df_nc$nc_tree[[11]] %>% plot_map3(varnam = "landCoverFrac")
+df_nc <- df_nc %>% 
+  mutate(gg = purrr::map2(
+    nc, modl, 
+    ~plot_map3(.x, varnam = "landCoverFrac", 
+               plot_title = .y, plot_subtitle = "Tree cover fraction",
+               latmin = -65, latmax = 85))
+    )
+
+## plot tree cover fraction map
+purrr::map(as.list(df_nc$gg), ~plot(.))
 ```
 
-Sum over tree PFTs
 ```{r}
-sum_tree_pft_cover <- function(nc, tree_ids){
-  nc$vars$landCoverFrac <- apply(nc$vars$landCoverFrac[,,tree_ids,], MARGIN = c(1,2,4), FUN = sum)
-  return(nc)
-}
-list_nc <- list()
-for (imodl in (df_nc %>% pull(modl))){
-  df_tmp <- df_nc %>% filter(modl == imodl)
-  list_nc[[imodl]] <- sum_tree_pft_cover(
-    df_tmp$nc,
-    list_tree_pft_id[[imodl]]
-  )
-}
-names(list_nc) <- df_nc %>% pull(modl)
+## write to file
+df_nc %>% 
+  mutate(outfiln = purrr::map2(nc, modl, ~write_nc2(.x, varnams = "landCoverFrac", make_tdim = FALSE, path = paste0("data/tree_cover_frac/tree_cover_frac_", .y, ".nc"))))
 ```
+
 
 ### Wood mass fraction
 
 Determine for which models we have all the files (cWood and cVeg) to calculate wood mass fractions and create system command.
 ```{r}
 df <- filnams %>% 
-  filter(!is.na(cWood)==1 & !is.na(cVeg)==1) %>% 
-  select(modl, filn_cWood = cWood, filn_cVeg = cVeg) %>% 
+  dplyr::filter(!is.na(cWood)==1 & !is.na(cVeg)==1) %>% 
+  dplyr::select(modl, filn_cWood = cWood, filn_cVeg = cVeg) %>% 
   left_join(
     varnams %>% 
-      select(modl, varn_cWood = cWood, varn_cVeg = cVeg),
+      dplyr::select(modl, varn_cWood = cWood, varn_cVeg = cVeg),
     by = "modl"
   ) %>% 
   mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
@@ -201,7 +207,7 @@ df <- filnams %>%
 ```
 
 Execute function using CDO.
-```{r}
+```{r eval=FALSE}
 out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE))
 ```
 
@@ -209,16 +215,17 @@ out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE))
 
 Determine for which models we have all the files (cWood and cVeg) to calculate wood mass fractions and create system command.
 ```{r}
-modls_ml <- availvars %>% 
-  filter(cLeaf==1 & cVeg==1) %>% 
-  pull(modl)
+# modls_ml <- availvars %>% 
+#   filter(cLeaf==1 & cVeg==1) %>% 
+#   pull(modl)
 
 df <- filnams %>% 
-  filter(modl %in% modls_ml) %>% 
-  select(modl, filn_cLeaf = cLeaf, filn_cVeg = cVeg) %>% 
+  # dplyr::filter(modl %in% modls_ml) %>% 
+  dplyr::filter(!is.na(cLeaf)==1 & !is.na(cVeg)==1) %>% 
+  dplyr::select(modl, filn_cLeaf = cLeaf, filn_cVeg = cVeg) %>% 
   left_join(
     varnams %>% 
-      select(modl, varn_cLeaf = cLeaf, varn_cVeg = cVeg),
+      dplyr::select(modl, varn_cLeaf = cLeaf, varn_cVeg = cVeg),
     by = "modl"
   ) %>% 
   mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
@@ -227,7 +234,7 @@ df <- filnams %>%
 ```
 
 Execute function using CDO.
-```{r}
+```{r eval=FALSE}
 out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE))
 ```
 
@@ -235,16 +242,17 @@ out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE))
 
 Determine for which models we have all the files (cWood and cVeg) to calculate wood mass fractions and create system command.
 ```{r}
-modls_mr <- availvars %>% 
-  filter(cRoot==1 & cVeg==1) %>% 
-  pull(modl)
+# modls_mr <- availvars %>% 
+#   filter(cRoot==1 & cVeg==1) %>% 
+#   pull(modl)
 
 df <- filnams %>% 
-  filter(modl %in% modls_mr) %>% 
-  select(modl, filn_cRoot = cRoot, filn_cVeg = cVeg) %>% 
+  # dplyr::filter(modl %in% modls_mr) %>% 
+  dplyr::filter(!is.na(cRoot)==1 & !is.na(cVeg)==1) %>% 
+  dplyr::select(modl, filn_cRoot = cRoot, filn_cVeg = cVeg) %>% 
   left_join(
     varnams %>% 
-      select(modl, varn_cRoot = cRoot, varn_cVeg = cVeg),
+      dplyr::select(modl, varn_cRoot = cRoot, varn_cVeg = cVeg),
     by = "modl"
   ) %>% 
   mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
@@ -253,53 +261,53 @@ df <- filnams %>%
 ```
 
 Execute function using CDO.
-```{r}
+```{r eval=FALSE}
 out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE))
 ```
 
-### Root:shoot ratio
+<!-- ### Root:shoot ratio -->
 
-The root:shoot ratio can be calculated in different ways.
-$$
-r_{RS} = \frac{M_R}{M_L + M_W} = \frac{C_R}{C-C_R} = \frac{C-C_L-C_W}{C_L + C_W}
-$$
-The first one, based on mass fractions, requires the same files to be available as the second one. Thus, it's actually just two ways. Let's determine which models provide enough information to calculate it based on the second or third option.
+<!-- The root:shoot ratio can be calculated in different ways. -->
+<!-- $$ -->
+<!-- r_{RS} = \frac{M_R}{M_L + M_W} = \frac{C_R}{C-C_R} = \frac{C-C_L-C_W}{C_L + C_W} -->
+<!-- $$ -->
+<!-- The first one, based on mass fractions, requires the same files to be available as the second one. Thus, it's actually just two ways. Let's determine which models provide enough information to calculate it based on the second or third option. -->
 
-Second option:
-```{r}
-modls_II <- availvars %>% 
-  filter(cRoot==1 & cVeg==1) %>% 
-  pull(modl)
-```
+<!-- Second option: -->
+<!-- ```{r} -->
+<!-- modls_II <- availvars %>%  -->
+<!--   filter(cRoot==1 & cVeg==1) %>%  -->
+<!--   pull(modl) -->
+<!-- ``` -->
 
-Third option:
-```{r}
-modls_III <- availvars %>% 
-  filter(cLeaf==1 & cWood==1 & cVeg==1) %>% 
-  pull(modl)
-```
+<!-- Third option: -->
+<!-- ```{r} -->
+<!-- modls_III <- availvars %>%  -->
+<!--   filter(cLeaf==1 & cWood==1 & cVeg==1) %>%  -->
+<!--   pull(modl) -->
+<!-- ``` -->
 
-There is no model available for III but not for II:
-```{r}
-!(modls_III %in% modls_II)
-!(modls_II %in% modls_III)
-```
-Hence, let's just do it with `modls_II`:
-```{r}
-df <- filnams %>% 
-  filter(modl %in% modls_II) %>% 
-  select(modl, filn_cRoot = cRoot, filn_cVeg = cVeg) %>% 
-  left_join(
-    varnams %>% 
-      select(modl, varn_cRoot = cRoot, varn_cVeg = cVeg),
-    by = "modl"
-  ) %>% 
-  mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>% 
-  mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v8/")) %>% 
-  mutate(cmd = paste("./calc_rootshoot_ratio.sh", filn_cRoot, filn_cVeg, dir))
-```
+<!-- There is no model available for III but not for II: -->
+<!-- ```{r} -->
+<!-- !(modls_III %in% modls_II) -->
+<!-- !(modls_II %in% modls_III) -->
+<!-- ``` -->
+<!-- Hence, let's just do it with `modls_II`: -->
+<!-- ```{r} -->
+<!-- df <- filnams %>%  -->
+<!--   dplyr::filter(modl %in% modls_II) %>%  -->
+<!--   dplyr::select(modl, filn_cRoot = cRoot, filn_cVeg = cVeg) %>%  -->
+<!--   left_join( -->
+<!--     varnams %>%  -->
+<!--       dplyr::select(modl, varn_cRoot = cRoot, varn_cVeg = cVeg), -->
+<!--     by = "modl" -->
+<!--   ) %>%  -->
+<!--   mutate_at(vars(starts_with("filn_")), ~str_replace(., ".nc", "")) %>%  -->
+<!--   mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v8/")) %>%  -->
+<!--   mutate(cmd = paste("./calc_rootshoot_ratio.sh", filn_cRoot, filn_cVeg, dir)) -->
+<!-- ``` -->
 
-Execute function using CDO.
-```{r}
-out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE))
-```
+<!-- Execute function using CDO. -->
+<!-- ```{r eval=FALSE} -->
+<!-- out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE)) -->
+<!-- ``` -->
