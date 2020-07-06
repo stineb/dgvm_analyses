@@ -192,6 +192,8 @@ gdf %>%
     .,
     gdf %>%
       dplyr::filter(modl != "CABLE-POP") %>%
+      mutate(n = purrr::map_int(data, ~nrow(.))) %>% 
+      mutate(data = purrr::map(data, ~slice_sample(., n = 4420))) %>% # smallest set here
       unnest(data) %>%
       mutate(modl = "ALL")
   ) %>%
@@ -206,10 +208,10 @@ gdf %>%
                        guide = "legend") +
   facet_wrap(. ~ modl, nrow = 3,  scales = "free") +
   xlim(-0.1, 0.9) + ylim(-0.1, 0.9) +
-  theme(legend.position = "none")
-  # scale_fill_binned(colors = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5)) +
-  # guides(fill = guide_colorsteps())
-  # scale_fill_binned(type = "viridis")
+  theme(legend.position = "none",
+        strip.background = element_blank())
+
+ggsave("fig/cveg_dnpp_trendy_s1_bymodl.pdf", width = 9, height = 7)
 
 # modobs <- gdf %>%
 #   unnest(data) %>%
@@ -232,19 +234,59 @@ modobs <- gdf$data[[2]] %>%
 modobs$gg +
   xlim(c(-0.5,1)) + ylim(c(-0.5,1)) +
   labs(title = gdf$modl[[2]])
+
+## all models pooled
+modobs <- gdf %>% 
+  unnest(data) %>% 
+  dplyr::filter(dnpp < 2 & dnpp > -2 & dcsoil_star < 2 & dcsoil_star > -2) %>% 
+  dplyr::filter(!is.nan(dnpp), !is.nan(dcsoil_star), !is.infinite(dnpp), !is.infinite(dcsoil_star)) %>% 
+  analyse_modobs2("dnpp", "dcsoil_star", type = "hex", plot_subtitle = FALSE, plot_linmod = FALSE)
+modobs$gg +
+  xlim(c(-0.1,0.7)) + ylim(c(-0.1,0.7)) +
+  labs(title = "All models pooled")
+
+## cSoil* vs. NPP, all models separately (facet_grid)
+gdf %>%
+  dplyr::filter(modl != "CABLE-POP") %>% 
+  unnest(data) %>%
+  bind_rows(
+    .,
+    gdf %>%
+      dplyr::filter(modl != "CABLE-POP") %>% 
+      mutate(n = purrr::map_int(data, ~nrow(.))) %>% 
+      mutate(data = purrr::map(data, ~slice_sample(., n = 4420))) %>% # smallest set here
+      unnest(data) %>%
+      mutate(modl = "ALL")
+  ) %>% 
+  dplyr::filter(dcsoil_star < 2 & dcsoil_star > -2 & dnpp < 2 & dnpp > -2) %>% 
+  dplyr::filter(!is.nan(dnpp), !is.nan(dnpp), !is.infinite(dnpp), !is.infinite(dnpp)) %>% 
+  ggplot(aes(x = dnpp, y = dcsoil_star)) +
+  stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") + 
+  theme_classic() +
+  geom_abline(intercept=0, slope=1, linetype="dotted") +
+  scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5),
+                       guide = "legend") +
+  facet_wrap(. ~ modl, nrow = 3,  scales = "free") +
+  xlim(-0.3, 1.2) + ylim(-0.3, 1.2) + 
+  labs(x = expression(paste(Delta, "NPP", "/NPP")),
+       y = expression(paste(Delta, "C"[soil], "/C"[soil]))) +
+  theme(legend.position = "none",
+        strip.background = element_blank())
+
+ggsave("fig/csoil_dnpp_trendy_s1_bymodl.pdf", width = 9, height = 7)
 ```
 
 ### SOC vs. biomass change
 
 ```{r}
-# one model
-modobs <- gdf$data[[2]] %>% 
-  dplyr::filter(dcveg < 2 & dcveg > -2 & dcsoil_star < 2 & dcsoil_star > -2) %>% 
-  dplyr::filter(!is.nan(dcveg), !is.nan(dcsoil_star), !is.infinite(dcveg), !is.infinite(dcsoil_star)) %>% 
-  analyse_modobs2("dcveg", "dcsoil_star", type = "heat", plot_subtitle = FALSE, plot_linmod = FALSE)
-modobs$gg +
-  xlim(c(-0.5,1)) + ylim(c(-0.5,1)) +
-  labs(title = gdf$modl[[2]])
+# # one model
+# modobs <- gdf$data[[2]] %>% 
+#   dplyr::filter(dcveg < 2 & dcveg > -2 & dcsoil_star < 2 & dcsoil_star > -2) %>% 
+#   dplyr::filter(!is.nan(dcveg), !is.nan(dcsoil_star), !is.infinite(dcveg), !is.infinite(dcsoil_star)) %>% 
+#   analyse_modobs2("dcveg", "dcsoil_star", type = "heat", plot_subtitle = FALSE, plot_linmod = FALSE)
+# modobs$gg +
+#   xlim(c(-0.5,1)) + ylim(c(-0.5,1)) +
+#   labs(title = gdf$modl[[2]])
 
 ## all models pooled
 modobs <- gdf %>% 
@@ -264,6 +306,8 @@ gdf %>%
     .,
     gdf %>%
       dplyr::filter(modl != "CABLE-POP") %>% 
+      mutate(n = purrr::map_int(data, ~nrow(.))) %>% 
+      mutate(data = purrr::map(data, ~slice_sample(., n = 4420))) %>% # smallest set here
       unnest(data) %>%
       mutate(modl = "ALL")
   ) %>% 
@@ -292,6 +336,8 @@ gdf %>%
     .,
     gdf %>%
       dplyr::filter(modl != "CABLE-POP") %>% 
+      mutate(n = purrr::map_int(data, ~nrow(.))) %>% 
+      mutate(data = purrr::map(data, ~slice_sample(., n = 4420))) %>% # smallest set here
       unnest(data) %>%
       mutate(modl = "ALL")
   ) %>% 
