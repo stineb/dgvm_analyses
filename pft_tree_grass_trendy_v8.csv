@@ -1,0 +1,18 @@
+modl,Filename,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
+CABLE-POP,CABLE-POP_S2_landCoverFrac.nc,Tree,Tree,Tree,Tree,Shrub,Grass,Grass,Barren,Barren,Barren,,,,,,,,,,,,,,,,
+CLASS-CTEM,CLASS-CTEM_S2_landCoverFrac.nc,Tree,Tree,Tree,Tree,Tree,Crop,Crop,Grass,Grass,Barren,,,,,,,,,,,,,,,,
+CLM5.0,,,,,,,,,,,,,,,,,,,,,,,,,,,
+CLM5.0_Corrected,,,,,,,,,,,,,,,,,,,,,,,,,,,
+DLEM,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ISAM,ISAM_S2_landCoverFrac.nc,Tree,Tree,Tree,Tree,Tree,Savanna,Grass,Shrub,Barren,Barren,Barren,Crop,Pasture,Tree,Tree,Tree,Tree,Tree,Barren,Tree,Grass,Crop,Pasture,Tree,,
+ISBA-CTRIP-UPDATE,,,,,,,,,,,,,,,,,,,,,,,,,,,
+JSBACH,JSBACH_S2_landCoverFrac.nc  ,Barren,Barren,Tree,Tree,Tree,Tree,Shrub,Shrub,Grass,Grass,Pasture,Pasture,Crop,Crop,,,,,,,,,,,,
+JULES-ES-1.0,JULES-ES.1p0.vn5.4.50.CRUJRA2.TRENDYv8.365.S2_Annual_landCoverFrac.nc ,,,,,,,,,,,,,,,,,,,,,,,,,,
+LPJ-GUESS,LPJ-GUESS_S2_landCoverFrac.nc,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Grass,Grass,Pasture,Pasture,Crop,Crop,Crop,Crop,Crop,Crop,Crop,Crop,Crop,Crop,Crop,Crop
+LPJ-wsl,,,,,,,,,,,,,,,,,,,,,,,,,,,
+LPX-Bern,LPX-Bern_S2_landCoverFrac.nc,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Grass,Grass,Peat,Peat,Peat,Peat,Peat,Crop,Crop,Pasture,Pasture,Barren,,,,,,
+OCN,,,,,,,,,,,,,,,,,,,,,,,,,,,
+ORCHIDEE,ORCHIDEE_S2_landCoverFrac.nc,Barren,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Grass,Grass,Crop,Crop,Grass,Grass,,,,,,,,,,,
+ORCHIDEE-CNP,ORCHIDEE-CNP_S2_landCoverFrac.nc,Barren,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Grass,Grass,Crop,Crop,Grass,Grass,,,,,,,,,,,
+SDGVM,SDGVM_S2_landCoverFrac.nc,Barren,Barren,Grass,Crop,Grass,Crop,Tree,Tree,Tree,Tree,,,,,,,,,,,,,,,,
+VISIT,VISIT_S2_landCoverFrac.nc,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Tree,Savanna,Grass,Shrub,Shrub,Barren,Barren,Barren,Crop,,,,,,,,,,
