@@ -448,6 +448,8 @@ gdf %>%
   stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") + 
   theme_classic() +
   geom_abline(intercept=0, slope=1, linetype="dotted") +
+  geom_vline(xintercept = 0, color = "grey50", size = 0.2) +
+  geom_hline(yintercept = 0, color = "grey50", size = 0.2) +
   scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5),
                        guide = "legend") +
   facet_wrap(. ~ modl, nrow = 3,  scales = "free") +
@@ -457,7 +459,54 @@ gdf %>%
   theme(legend.position = "none",
         strip.background = element_blank())
 
-ggsave("fig/csoil_cveg_ag_trendy_s1_bymodl.pdf", width = 9, height = 7)
+ggsave("fig/csoil_cveg_ag_trendy_s1_bymodl.pdf", width = 7, height = 7)
+
+
+## cSoil*, all models pooled
+gdf %>%
+  
+  ## sample 1957 points from each model (corresponds to the number of gridcell of the model with coarsest res.)
+  mutate(data = purrr::map(data, ~slice_sample(., n = 1957))) %>% # smallest set here
+  unnest(data) %>%
+  mutate(modl = "ALL") %>% 
+  
+  dplyr::filter(dcsoil_star < 2 & dcsoil_star > -2 & dcveg_ag < 2 & dcveg_ag > -2) %>% 
+  dplyr::filter(!is.nan(dnpp), !is.nan(dcveg_ag), !is.infinite(dnpp), !is.infinite(dcveg_ag)) %>% 
+  ggplot(aes(x = dcveg_ag, y = dcsoil_star)) +
+  stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") + 
+  theme_classic() +
+  geom_abline(intercept=0, slope=1, linetype="dotted") +
+  geom_vline(xintercept = 0, color = "grey50", size = 0.2) +
+  geom_hline(yintercept = 0, color = "grey50", size = 0.2) +
+  scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5),
+                       guide = "legend") +
+  # facet_wrap(. ~ modl, nrow = 3,  scales = "free") +
+  xlim(-0.5, 1.5) + ylim(-0.5, 1.5) + 
+  labs(x = expression(paste(Delta, "C"[ag-veg], "/C"[ag-veg])),
+       y = expression(paste(Delta, "C"[soil], "/C"[soil]))) +
+  theme(legend.position = "none",
+        strip.background = element_blank())
+
+ggsave("fig/csoil_cveg_ag_trendy_s1.pdf", width = 7, height = 7)
+
+# ## Cesar's figure
+# df_cesar <- read_csv("./data/model_data_mean_long.csv")
+# 
+# obs.mods <- ggplot(df_cesar, aes(make_pct(Cabove), make_pct(Csoil), colour=type)) +
+#   geom_smooth(size=.5,data=filter(df_cesar,type=="modeled"), method = "lm", se=FALSE, color="#e41a1c", formula = y ~ x) +
+#   stat_smooth(size=.5,data=filter(df_cesar,type=="observed"), method = "lm", se=FALSE, color="#377eb8", formula = y ~ poly(x, 3)) + # orthogonal polynomials, in this case with a 3rd order
+#   geom_errorbar(aes(ymin=make_pct(Csoil)-make_pct(SE.soil), ymax=make_pct(Csoil)+make_pct(SE.soil)), width=1,size=.3,colour="black") +
+#   geom_point(aes(shape=Site),size=1.5,fill="white",alpha=.7) +
+#   scale_shape_manual(values=c(21:25,4)) + guides(colour=guide_legend(title=NULL)) +
+#   scale_colour_manual(values=c("#e41a1c","#377eb8")) +
+#   guides(col = guide_legend(title = NULL,order = 0),
+#          shape = guide_legend(title = "Experiment",order = 1)) +
+#   labs(x=expression(paste(CO[2]," effect on biomass carbon (%)", sep="")),
+#        y=expression(paste(CO[2]," effect on soil carbon (%)", sep=""))) +
+#   theme_cowplot(font_size=8) +
+#   theme(legend.position = c(0.7, 0.7),
+#         legend.spacing.y = unit(2, "pt"))
+
 
 ## cSoil, all models separately (facet_grid)
 gdf %>%

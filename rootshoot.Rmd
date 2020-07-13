@@ -265,6 +265,7 @@ Execute function using CDO.
 out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE))
 ```
 
+
 <!-- ### Root:shoot ratio -->
 
 <!-- The root:shoot ratio can be calculated in different ways. -->

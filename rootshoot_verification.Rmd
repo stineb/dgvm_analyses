@@ -1,0 +1,109 @@
+---
+title: "Verification of root mass fractions"
+author: "Benjamin D. Stocker"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+---
+
+```{r include=FALSE}
+library(rbeni)
+library(lubridate)
+library(ggplot2)
+```
+
+## LPJ-GUESS
+
+```{r}
+nc_root <- read_nc_onefile("~/data/trendy/v8/LPJ-GUESS_S2_cRoot.nc")
+nc_veg <- read_nc_onefile("~/data/trendy/v8/LPJ-GUESS_S2_cVeg.nc")
+
+years <- 1986:2015
+nc_root <- nc_selyear(nc_root, years) %>% 
+  nc_yearmean()
+nc_veg  <- nc_selyear(nc_veg, years) %>% 
+  nc_yearmean()
+
+## divide
+nc_rootmassfraction <- nc_div(nc_root, nc_veg)
+
+## apply forest mask - need to set it to 0.5 in order not to exclude too many
+nc_forest <- read_nc_onefile("~/dgvm_analyses/data/tree_cover_frac/tree_cover_frac_LPJ-GUESS.nc")
+nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac >= 0.5)] <- 1.0
+nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac < 0.5)] <- NA
+
+nc_rootmassfraction$vars$div <- nc_rootmassfraction$vars$div * nc_forest$vars$landCoverFrac
+
+gg <- plot_map3(nc_rootmassfraction, varnam = "div", latmin = -55, latmax = 80, nbin = 12, plot_title = "LPJ-GUESS")
+gg
+
+tibble(rootmassfraction = c(nc_rootmassfraction$vars$div)) %>%
+  ggplot(aes(x = rootmassfraction)) +
+  geom_histogram() +
+  labs( title = "LPJ-GUESS")
+```
+
+<!-- ## ORCHIDEE-CNP -->
+
+<!-- ```{r} -->
+<!-- nc_root <- read_nc_onefile("~/data/trendy/v8/ORCHIDEE-CNP_S2_cRoot.nc") -->
+<!-- nc_veg <- read_nc_onefile("~/data/trendy/v8/ORCHIDEE-CNP_S2_cVeg.nc") -->
+
+<!-- years <- 1986:2015 -->
+<!-- nc_root <- nc_selyear(nc_root, years) %>%  -->
+<!--   nc_yearmean() -->
+<!-- nc_veg  <- nc_selyear(nc_veg, years) %>%  -->
+<!--   nc_yearmean() -->
+
+<!-- ## divide -->
+<!-- nc_rootmassfraction <- nc_div(nc_root, nc_veg) -->
+
+<!-- ## apply forest mask - need to set it to 0.5 in order not to exclude too many -->
+<!-- nc_forest <- read_nc_onefile("~/dgvm_analyses/data/tree_cover_frac/tree_cover_frac_ORCHIDEE-CNP.nc") -->
+<!-- nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac >= 0.5)] <- 1.0 -->
+<!-- nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac < 0.5)] <- NA -->
+
+<!-- nc_rootmassfraction$vars$div <- nc_rootmassfraction$vars$div * nc_forest$vars$landCoverFrac -->
+
+<!-- gg <- plot_map3(nc_rootmassfraction, varnam = "div", latmin = -55, latmax = 80, nbin = 12, plot_title = "ORCHIDEE-CNP") -->
+<!-- gg -->
+
+<!-- tibble(rootmassfraction = c(nc_rootmassfraction$vars$div)) %>% -->
+<!--   ggplot(aes(x = rootmassfraction)) + -->
+<!--   geom_histogram() + -->
+<!--   labs( title = "ORCHIDEE-CNP") -->
+<!-- ``` -->
+
+<!-- ## CABLE-POP -->
+
+<!-- ```{r} -->
+<!-- nc_root <- read_nc_onefile("~/data/trendy/v8/CABLE-POP_S2_cRoot.nc") -->
+<!-- nc_veg <- read_nc_onefile("~/data/trendy/v8/CABLE-POP_S2_cVeg.nc") -->
+
+<!-- years <- 1986:2015 -->
+<!-- nc_root <- nc_selyear(nc_root, years) %>%  -->
+<!--   nc_yearmean() -->
+<!-- nc_veg  <- nc_selyear(nc_veg, years) %>%  -->
+<!--   nc_yearmean() -->
+
+<!-- ## divide -->
+<!-- nc_rootmassfraction <- nc_div(nc_root, nc_veg) -->
+
+<!-- ## apply forest mask - need to set it to 0.5 in order not to exclude too many -->
+<!-- nc_forest <- read_nc_onefile("~/dgvm_analyses/data/tree_cover_frac/tree_cover_frac_CABLE-POP.nc") -->
+<!-- nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac >= 0.5)] <- 1.0 -->
+<!-- nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac < 0.5)] <- NA -->
+
+<!-- nc_rootmassfraction$vars$div <- nc_rootmassfraction$vars$div * nc_forest$vars$landCoverFrac -->
+
+<!-- gg <- plot_map3(nc_rootmassfraction, varnam = "div", latmin = -55, latmax = 80, nbin = 12, plot_title = "CABLE-POP") -->
+<!-- gg -->
+
+<!-- tibble(rootmassfraction = c(nc_rootmassfraction$vars$div)) %>% -->
+<!--   ggplot(aes(x = rootmassfraction)) + -->
+<!--   geom_histogram() + -->
+<!--   labs( title = "CABLE-POP") -->
+<!-- ``` -->
