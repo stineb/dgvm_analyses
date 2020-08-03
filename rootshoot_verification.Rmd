@@ -9,7 +9,7 @@ output:
     toc_depth: 3
 ---
 
-```{r include=FALSE}
+```{r}
 library(rbeni)
 library(lubridate)
 library(ggplot2)
@@ -17,7 +17,7 @@ library(ggplot2)
 
 ## LPJ-GUESS
 
-```{r}
+```{r echo = FALSE}
 nc_root <- read_nc_onefile("~/data/trendy/v8/LPJ-GUESS_S2_cRoot.nc")
 nc_veg <- read_nc_onefile("~/data/trendy/v8/LPJ-GUESS_S2_cVeg.nc")
 
@@ -29,81 +29,92 @@ nc_veg  <- nc_selyear(nc_veg, years) %>%
 
 ## divide
 nc_rootmassfraction <- nc_div(nc_root, nc_veg)
+plot_map3(nc_rootmassfraction, varnam = "div", plot_title = "Root mass fraction", plot_subtitle = "LPJ-GUESS")
 
 ## apply forest mask - need to set it to 0.5 in order not to exclude too many
 nc_forest <- read_nc_onefile("~/dgvm_analyses/data/tree_cover_frac/tree_cover_frac_LPJ-GUESS.nc")
 nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac >= 0.5)] <- 1.0
 nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac < 0.5)] <- NA
+plot_map3(nc_forest, varnam = "landCoverFrac", plot_title = "Forest fraction", plot_subtitle = "LPJ-GUESS")
 
 nc_rootmassfraction$vars$div <- nc_rootmassfraction$vars$div * nc_forest$vars$landCoverFrac
 
-gg <- plot_map3(nc_rootmassfraction, varnam = "div", latmin = -55, latmax = 80, nbin = 12, plot_title = "LPJ-GUESS")
-gg
+plot_map3(nc_rootmassfraction, varnam = "div", latmin = -55, latmax = 80, nbin = 12, plot_title = "Root mass fraction", plot_subtitle = "LPJ-GUESS")
 
 tibble(rootmassfraction = c(nc_rootmassfraction$vars$div)) %>%
   ggplot(aes(x = rootmassfraction)) +
   geom_histogram() +
-  labs( title = "LPJ-GUESS")
+  labs( title = "Root mass fraction", subtitle = "LPJ-GUESS")
 ```
 
-<!-- ## ORCHIDEE-CNP -->
+## ORCHIDEE-CNP
 
-<!-- ```{r} -->
-<!-- nc_root <- read_nc_onefile("~/data/trendy/v8/ORCHIDEE-CNP_S2_cRoot.nc") -->
-<!-- nc_veg <- read_nc_onefile("~/data/trendy/v8/ORCHIDEE-CNP_S2_cVeg.nc") -->
+```{r echo = FALSE}
+nc_root <- read_nc_onefile("~/data/trendy/v8/ORCHIDEE-CNP_S2_cRoot.nc")
+nc_veg <- read_nc_onefile("~/data/trendy/v8/ORCHIDEE-CNP_S2_cVeg.nc")
 
-<!-- years <- 1986:2015 -->
-<!-- nc_root <- nc_selyear(nc_root, years) %>%  -->
-<!--   nc_yearmean() -->
-<!-- nc_veg  <- nc_selyear(nc_veg, years) %>%  -->
-<!--   nc_yearmean() -->
+years <- 1986:2015
+nc_root <- nc_selyear(nc_root, years) %>%
+  nc_yearmean() %>% 
+  nc_flip_lat()    # required for this model
 
-<!-- ## divide -->
-<!-- nc_rootmassfraction <- nc_div(nc_root, nc_veg) -->
+nc_veg  <- nc_selyear(nc_veg, years) %>%
+  nc_yearmean() %>% 
+  nc_flip_lat()    # required for this model
 
-<!-- ## apply forest mask - need to set it to 0.5 in order not to exclude too many -->
-<!-- nc_forest <- read_nc_onefile("~/dgvm_analyses/data/tree_cover_frac/tree_cover_frac_ORCHIDEE-CNP.nc") -->
-<!-- nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac >= 0.5)] <- 1.0 -->
-<!-- nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac < 0.5)] <- NA -->
+## divide
+nc_rootmassfraction <- nc_div(nc_root, nc_veg)
+plot_map3(nc_rootmassfraction, varnam = "div", plot_title = "Root mass fraction", plot_subtitle = "ORCHIDEE-CNP")
 
-<!-- nc_rootmassfraction$vars$div <- nc_rootmassfraction$vars$div * nc_forest$vars$landCoverFrac -->
+## apply forest mask - need to set it to 0.5 in order not to exclude too many
+nc_forest <- read_nc_onefile("~/dgvm_analyses/data/tree_cover_frac/tree_cover_frac_ORCHIDEE-CNP.nc") %>% 
+  nc_flip_lat()    # required for this model
+plot_map3(nc_forest, varnam = "landCoverFrac", plot_title = "Forest fraction", plot_subtitle = "ORCHIDEE-CNP")
 
-<!-- gg <- plot_map3(nc_rootmassfraction, varnam = "div", latmin = -55, latmax = 80, nbin = 12, plot_title = "ORCHIDEE-CNP") -->
-<!-- gg -->
+nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac >= 0.5)] <- 1.0
+nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac < 0.5)] <- NA
 
-<!-- tibble(rootmassfraction = c(nc_rootmassfraction$vars$div)) %>% -->
-<!--   ggplot(aes(x = rootmassfraction)) + -->
-<!--   geom_histogram() + -->
-<!--   labs( title = "ORCHIDEE-CNP") -->
-<!-- ``` -->
+nc_rootmassfraction$vars$div <- nc_rootmassfraction$vars$div * nc_forest$vars$landCoverFrac
 
-<!-- ## CABLE-POP -->
+plot_map3(nc_rootmassfraction, varnam = "div", latmin = -55, latmax = 80, nbin = 12, plot_title = "Root mass fraction", plot_subtitle = "ORCHIDEE-CNP")
 
-<!-- ```{r} -->
-<!-- nc_root <- read_nc_onefile("~/data/trendy/v8/CABLE-POP_S2_cRoot.nc") -->
-<!-- nc_veg <- read_nc_onefile("~/data/trendy/v8/CABLE-POP_S2_cVeg.nc") -->
+tibble(rootmassfraction = c(nc_rootmassfraction$vars$div)) %>%
+  ggplot(aes(x = rootmassfraction)) +
+  geom_histogram() +
+  labs( title = "Root mass fraction", subtitle = "ORCHIDEE-CNP")
+```
 
-<!-- years <- 1986:2015 -->
-<!-- nc_root <- nc_selyear(nc_root, years) %>%  -->
-<!--   nc_yearmean() -->
-<!-- nc_veg  <- nc_selyear(nc_veg, years) %>%  -->
-<!--   nc_yearmean() -->
+## CABLE-POP
 
-<!-- ## divide -->
-<!-- nc_rootmassfraction <- nc_div(nc_root, nc_veg) -->
+```{r echo = FALSE}
+nc_root <- read_nc_onefile("~/data/trendy/v8/processed/CABLE-POP_S2_cRoot_ANN.nc")  # this is a bit annoying: output is monthly
+nc_veg <- read_nc_onefile("~/data/trendy/v8/CABLE-POP_S2_cVeg.nc")
 
-<!-- ## apply forest mask - need to set it to 0.5 in order not to exclude too many -->
-<!-- nc_forest <- read_nc_onefile("~/dgvm_analyses/data/tree_cover_frac/tree_cover_frac_CABLE-POP.nc") -->
-<!-- nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac >= 0.5)] <- 1.0 -->
-<!-- nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac < 0.5)] <- NA -->
+years <- 1986:2015
+nc_root <- nc_selyear(nc_root, years) %>%
+  nc_yearmean()
+nc_veg  <- nc_selyear(nc_veg, years) %>%
+  nc_yearmean()
 
-<!-- nc_rootmassfraction$vars$div <- nc_rootmassfraction$vars$div * nc_forest$vars$landCoverFrac -->
+## divide
+nc_rootmassfraction <- nc_div(nc_root, nc_veg)
 
-<!-- gg <- plot_map3(nc_rootmassfraction, varnam = "div", latmin = -55, latmax = 80, nbin = 12, plot_title = "CABLE-POP") -->
-<!-- gg -->
+plot_map3(nc_rootmassfraction, varnam = "div", plot_title = "Root mass fraction", plot_subtitle = "CABLE-POP")
 
-<!-- tibble(rootmassfraction = c(nc_rootmassfraction$vars$div)) %>% -->
-<!--   ggplot(aes(x = rootmassfraction)) + -->
-<!--   geom_histogram() + -->
-<!--   labs( title = "CABLE-POP") -->
-<!-- ``` -->
+## apply forest mask - need to set it to 0.5 in order not to exclude too many
+nc_forest <- read_nc_onefile("~/dgvm_analyses/data/tree_cover_frac/tree_cover_frac_CABLE-POP.nc")
+
+plot_map3(nc_forest, varnam = "landCoverFrac", plot_title = "Forest fraction", plot_subtitle = "CABLE-POP")
+
+nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac >= 0.5)] <- 1.0
+nc_forest$vars$landCoverFrac[which(nc_forest$vars$landCoverFrac < 0.5)] <- NA
+
+nc_rootmassfraction$vars$div <- nc_rootmassfraction$vars$div * nc_forest$vars$landCoverFrac
+
+plot_map3(nc_rootmassfraction, varnam = "div", latmin = -55, latmax = 80, nbin = 12, plot_title = "Root mass fraction", plot_subtitle = "CABLE-POP")
+
+tibble(rootmassfraction = c(nc_rootmassfraction$vars$div)) %>%
+  ggplot(aes(x = rootmassfraction)) +
+  geom_histogram() +
+  labs( title = "Root mass fraction", subtitle = "CABLE-POP" )
+```
