@@ -88,6 +88,17 @@ Peculiarities of outputs by model prohibiting their processing:
 - LPX-Bern: failed NPP processing
 - VISIT: No NPP output available
 
+No separate output for pools (wood, leaf, root)
+
+- CLASS-CTEM
+- DLEM
+- JSBACH
+- JULES
+- OCN
+- SDGVM (only wood missing - could be derived)
+- SURFEX
+- VISIT
+
 ### Process files: multi-annual mean
 
 Determine for which models we have all the files (cWood and cVeg) to calculate wood mass fractions and create system command.
@@ -99,6 +110,9 @@ filnams <- read_csv( "filnams_trendy_v7_S1.csv" ) %>%
 
 modls <- filnams %>% 
   filter(!is.na(filn_cSoil) & !is.na(filn_cVeg) & !is.na(filn_npp)) %>%
+
+  ## for separate aboveground biomass
+  filter(!is.na(filn_cWood) & !is.na(filn_cLeaf)) %>%
   
   ## remove models from analysis. See above for reasons for exclusion
   filter(!(modl %in% c("LPJ", "DLEM", "LPX-Bern", "VISIT"))) %>%
@@ -124,9 +138,9 @@ df <- filnams %>%
   mutate(cmd_cVeg  = paste("./proc_trendy_soc_biomass.sh", filn_cVeg,  dir, startyear_init, endyear_init),
          cmd_cSoil = paste("./proc_trendy_soc_biomass.sh", filn_cSoil, dir, startyear_init, endyear_init),
          cmd_npp   = paste("./proc_trendy_soc_biomass.sh", filn_npp_ANN ,  dir, startyear_npp_init, endyear_npp_init),
-         # cmd_cLeaf = paste("./proc_trendy_soc_biomass.sh", filn_cLeaf, dir),
-         # cmd_cWood = paste("./proc_trendy_soc_biomass.sh", filn_cWood, dir),
-         # cmd_cRoot = paste("./proc_trendy_soc_biomass.sh", filn_cRoot, dir),
+         cmd_cLeaf = paste("./proc_trendy_soc_biomass.sh", filn_cLeaf, dir, startyear_init, endyear_init),
+         cmd_cWood = paste("./proc_trendy_soc_biomass.sh", filn_cWood, dir, startyear_init, endyear_init),
+         cmd_cRoot = paste("./proc_trendy_soc_biomass.sh", filn_cRoot, dir, startyear_init, endyear_init),
          cmd_dcSoil = paste("./proc_trendy_dsoc.sh", filn_cSoil, dir),
          cmd_dcVeg  = paste("./proc_trendy_dsoc.sh", filn_cVeg,  dir)
          ) %>% 
@@ -134,15 +148,15 @@ df <- filnams %>%
   rowwise() %>% 
   mutate(filn_cVeg_init  = paste0(filn_cVeg, "_INIT_MEAN"),
          filn_cVeg_final = paste0(filn_cVeg, "_FINAL_MEAN"),
-         
-         # filn_cLeaf_init  = paste0(filn_cLeaf, "_INIT_MEAN"),
-         # filn_cLeaf_final = paste0(filn_cLeaf, "_FINAL_MEAN"),
-         # 
-         # filn_cRoot_init  = paste0(filn_cRoot, "_INIT_MEAN"),
-         # filn_cRoot_final = paste0(filn_cRoot, "_FINAL_MEAN"),
-         # 
-         # filn_cWood_init  = paste0(filn_cWood, "_INIT_MEAN"),
-         # filn_cWood_final = paste0(filn_cWood, "_FINAL_MEAN"),
+
+         filn_cLeaf_init  = paste0(filn_cLeaf, "_INIT_MEAN"),
+         filn_cLeaf_final = paste0(filn_cLeaf, "_FINAL_MEAN"),
+
+         filn_cRoot_init  = paste0(filn_cRoot, "_INIT_MEAN"),
+         filn_cRoot_final = paste0(filn_cRoot, "_FINAL_MEAN"),
+
+         filn_cWood_init  = paste0(filn_cWood, "_INIT_MEAN"),
+         filn_cWood_final = paste0(filn_cWood, "_FINAL_MEAN"),
          
          filn_cSoil_init  = paste0(filn_cSoil, "_INIT_MEAN"),
          filn_cSoil_final = paste0(filn_cSoil, "_FINAL_MEAN"),
@@ -174,9 +188,10 @@ out <- purrr::map(as.list(df %>% pull(cmd_dcSoil)), ~system(., intern = TRUE))
 ## get additional fields needed to estimate steady-state for veg C
 out <- purrr::map(as.list(df %>% pull(cmd_dcVeg)), ~system(., intern = TRUE))
 
-# out <- purrr::map(as.list(df %>% pull(cmd_cLeaf)),  ~system(., intern = TRUE))
-# out <- purrr::map(as.list(df %>% pull(cmd_cWood)),  ~system(., intern = TRUE))
-# out <- purrr::map(as.list(df %>% pull(cmd_cRoot)),  ~system(., intern = TRUE))
+## for remaining...
+out <- purrr::map(as.list(df %>% pull(cmd_cLeaf)),  ~system(., intern = TRUE))
+out <- purrr::map(as.list(df %>% pull(cmd_cWood)),  ~system(., intern = TRUE))
+out <- purrr::map(as.list(df %>% pull(cmd_cRoot)),  ~system(., intern = TRUE))
 ```
 
 ## Collect data
@@ -201,14 +216,14 @@ gdf <- purrr::map(
     df$filn_cVeg_init[.],
     df$filn_cVeg_final[.],
 
-    # df$filn_cLeaf_init[.],
-    # df$filn_cLeaf_final[.],
-    # 
-    # df$filn_cRoot_init[.],
-    # df$filn_cRoot_final[.],
-    # 
-    # df$filn_cWood_init[.],
-    # df$filn_cWood_final[.],
+    df$filn_cLeaf_init[.],
+    df$filn_cLeaf_final[.],
+
+    df$filn_cRoot_init[.],
+    df$filn_cRoot_final[.],
+
+    df$filn_cWood_init[.],
+    df$filn_cWood_final[.],
 
     df$filn_npp_init[.],
     df$filn_npp_final[.],
@@ -218,10 +233,10 @@ gdf <- purrr::map(
   
   bind_rows() %>%
 
-  # ## get aboveground biomass as sum of cWood and cLeaf
-  # mutate(cveg_ag_init = cleaf_init + cwood_init,
-  #        cveg_ag_final = cleaf_final + cwood_final
-  #        ) %>%
+  ## get aboveground biomass as sum of cWood and cLeaf
+  mutate(cveg_ag_init = cleaf_init + cwood_init,
+         cveg_ag_final = cleaf_final + cwood_final
+         ) %>%
 
   group_by(modl) %>%
   nest()
@@ -254,7 +269,7 @@ testdf <- gdf$data[[1]] %>%
 get_deltas <- function(df){
   df %>%
     mutate(dcveg = (cveg_final - cveg_init)/cveg_init,
-           # dcveg_ag = (cveg_ag_final - cveg_ag_init)/cveg_ag_init,
+           dcveg_ag = (cveg_ag_final - cveg_ag_init)/cveg_ag_init,
            dnpp = (npp_final - npp_init)/npp_init,
            dcsoil = (csoil_final - csoil_init)/csoil_init,
            dcsoil_star = (csoil_star_final - csoil_star_init)/csoil_star_init
@@ -501,12 +516,10 @@ modobs$gg +
 
 ## cSoil*, all models separately (facet_grid)
 gdf %>%
-  # dplyr::filter(modl != "CABLE-POP") %>%
   unnest(data) %>%
   # bind_rows(
   #   .,
   #   gdf %>%
-  #     # dplyr::filter(modl != "CABLE-POP") %>%
   #     mutate(n = purrr::map_int(data, ~nrow(.))) %>%
   #     mutate(data = purrr::map(data, ~slice_sample(., n = 4420))) %>% # smallest set here
   #     unnest(data) %>%
