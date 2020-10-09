@@ -12,8 +12,9 @@
 ## select years
 rm ${2}/processed/${1}_t1.nc
 rm ${2}/processed/${1}_t2.nc
-cdo -O selyear,2009 ${2}${1}.nc ${2}/processed/${1}_t1.nc
-cdo -O selyear,2018 ${2}${1}.nc ${2}/processed/${1}_t2.nc
+
+cdo -O selyear,2008 ${2}${1}.nc ${2}/processed/${1}_t1.nc
+cdo -O selyear,2017 ${2}${1}.nc ${2}/processed/${1}_t2.nc
 
 ## get change in soil C
 rm ${2}/processed/${1}_CHANGE.nc
