@@ -5,7 +5,7 @@ collect_gdf_bymodl <- function(modl, dir,
                                filn_cRoot_init, filn_cRoot_final,
                                filn_cWood_init, filn_cWood_final,
                                filn_npp_init, filn_npp_final,
-                               filn_cSoil_change
+                               filn_cSoil_change, filn_cVeg_change
                                ){
   
   rlang::inform(paste("Collecting outputs for", modl))
@@ -113,6 +113,15 @@ collect_gdf_bymodl <- function(modl, dir,
         dplyr::rename(csoil_change = myvar),
       by = c("lon", "lat")
     ) %>% 
+    
+    ## Veg C change during the last decade
+    left_join(
+      read_nc_onefile(paste0(dir, "/processed/", filn_cVeg_change, ".nc"), ignore_time = TRUE, varnam = "cVeg") %>% 
+        nc_to_df(varnam = "cVeg") %>% 
+        tidyr::drop_na(myvar) %>% 
+        dplyr::rename(cveg_change = myvar),
+      by = c("lon", "lat")
+    ) %>%     
     
     ## add model name as column
     mutate(modl = modl)

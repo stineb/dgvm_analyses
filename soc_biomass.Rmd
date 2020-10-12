@@ -147,7 +147,9 @@ df <- filnams %>%
          cmd_cWood = paste("./proc_trendy_soc_biomass.sh", filn_cWood, dir, startyear_init, endyear_init),
          cmd_cRoot = paste("./proc_trendy_soc_biomass.sh", filn_cRoot, dir, startyear_init, endyear_init),
          cmd_dcSoil = paste("./proc_trendy_dsoc.sh", filn_cSoil, dir),
-         cmd_dcVeg  = paste("./proc_trendy_dsoc.sh", filn_cVeg,  dir)
+         cmd_dcVeg  = paste("./proc_trendy_dsoc.sh", filn_cVeg,  dir),
+         cmd_dcLeaf  = paste("./proc_trendy_dsoc.sh", filn_cLeaf,  dir),
+         cmd_dcWood  = paste("./proc_trendy_dsoc.sh", filn_cWood,  dir)
          ) %>% 
   
   rowwise() %>% 
@@ -167,7 +169,10 @@ df <- filnams %>%
          filn_cSoil_final = paste0(filn_cSoil, "_FINAL_MEAN"),
          
          filn_cSoil_change = paste0(filn_cSoil, "_CHANGE"),
-         
+         filn_cVeg_change  = paste0(filn_cVeg, "_CHANGE"),
+         filn_cLeaf_change = paste0(filn_cLeaf, "_CHANGE"),
+         filn_cWood_change = paste0(filn_cWood, "_CHANGE"),
+                  
          filn_npp_init  = paste0(filn_npp_ANN, "_INIT_MEAN"),
          filn_npp_final = paste0(filn_npp_ANN, "_FINAL_MEAN")
          )
@@ -190,8 +195,10 @@ out <- purrr::map(as.list(df %>% pull(cmd_npp)),    ~system(., intern = TRUE))
 ## get additional fields needed to estimate steady-state for soil C
 out <- purrr::map(as.list(df %>% pull(cmd_dcSoil)), ~system(., intern = TRUE))
 
-## get additional fields needed to estimate steady-state for veg C
+## get additional fields needed to estimate steady-state for veg C, leaf C, and wood C
 out <- purrr::map(as.list(df %>% pull(cmd_dcVeg)), ~system(., intern = TRUE))
+out <- purrr::map(as.list(df %>% pull(cmd_dcLeaf)), ~system(., intern = TRUE))
+out <- purrr::map(as.list(df %>% pull(cmd_dcWood)), ~system(., intern = TRUE))
 
 ## for remaining...
 out <- purrr::map(as.list(df %>% pull(cmd_cLeaf)),  ~system(., intern = TRUE))
@@ -233,7 +240,8 @@ gdf <- purrr::map(
     df$filn_npp_init[.],
     df$filn_npp_final[.],
 
-    df$filn_cSoil_change[.]
+    df$filn_cSoil_change[.],
+    df$filn_cVeg_change[.]
     )) %>% 
   
   bind_rows() %>%
@@ -500,36 +508,6 @@ gdf %>%
 ### SOC vs. aboveground biomass change
 
 ```{r}
-# # one model
-# modobs <- gdf$data[[3]] %>%
-#   dplyr::filter(dcveg_ag < 2 & dcveg_ag > -2 & dcsoil_star < 2 & dcsoil_star > -2) %>%
-#   dplyr::filter(!is.nan(dcveg_ag), !is.nan(dcsoil_star), !is.infinite(dcveg_ag), !is.infinite(dcsoil_star)) %>%
-#   analyse_modobs2("dcveg_ag", "dcsoil_star", type = "heat", plot_subtitle = FALSE, plot_linmod = FALSE)
-# modobs$gg +
-#   xlim(c(-0.5,1)) + ylim(c(-0.5,1)) +
-#   labs(title = gdf$modl[[3]])
-
-## all models pooled
-gdf %>%
-  unnest(data) %>%
-  dplyr::filter(dcveg_ag < 2 & dcveg_ag > -2 & dcsoil_star < 2 & dcsoil_star > -2) %>%
-  dplyr::filter(!is.nan(dcveg_ag), !is.nan(dcsoil_star), !is.infinite(dcveg_ag), !is.infinite(dcsoil_star)) %>%
-
-  ggplot(aes(x = dcveg_ag, y = dcsoil_star)) +
-  stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") +
-  theme_classic() +
-  geom_abline(intercept=0, slope=1, linetype="dotted") +
-  geom_vline(xintercept = 0, color = "grey50", size = 0.2) +
-  geom_hline(yintercept = 0, color = "grey50", size = 0.2) +
-  scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5),
-                       guide = "legend") +
-  xlim(-0.5, 1.5) + ylim(-0.5, 1.5) +
-  labs(x = expression(paste(Delta, "C"[ag-veg], "/C"[ag-veg])),
-       y = expression(paste(Delta, "C"[soil], "/C"[soil]))) +
-  theme(legend.position = "none",
-        strip.background = element_blank())
-
-
 ## cSoil*, all models separately (facet_grid)
 gdf %>%
   unnest(data) %>%
@@ -543,6 +521,7 @@ gdf %>%
   # ) %>%
   dplyr::filter(dcsoil_star < 2 & dcsoil_star > -2 & dcveg_ag < 2 & dcveg_ag > -2) %>%
   dplyr::filter(!is.nan(dnpp), !is.nan(dcveg_ag), !is.infinite(dnpp), !is.infinite(dcveg_ag)) %>%
+  
   ggplot(aes(x = dcveg_ag, y = dcsoil_star)) +
   stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") +
   theme_classic() +
@@ -571,6 +550,7 @@ gdf %>%
 
   dplyr::filter(dcsoil_star < 2 & dcsoil_star > -2 & dcveg_ag < 2 & dcveg_ag > -2) %>%
   dplyr::filter(!is.nan(dnpp), !is.nan(dcveg_ag), !is.infinite(dnpp), !is.infinite(dcveg_ag)) %>%
+  
   ggplot(aes(x = dcveg_ag, y = dcsoil_star)) +
   stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") +
   theme_classic() +
@@ -580,13 +560,13 @@ gdf %>%
   scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5),
                        guide = "legend") +
   # facet_wrap(. ~ modl, nrow = 3,  scales = "free") +
-  xlim(-0.5, 1.5) + ylim(-0.5, 1.5) +
+  xlim(-0.2, 1.0) + ylim(-0.2, 1.0) +
   labs(x = expression(paste(Delta, "C"[ag-veg], "/C"[ag-veg])),
        y = expression(paste(Delta, "C"[soil], "/C"[soil]))) +
   theme(legend.position = "none",
         strip.background = element_blank())
 
-ggsave("fig/csoil_cveg_ag_trendy_s1.pdf", width = 7, height = 7)
+ggsave("fig/csoil_cveg_ag_trendy_s1_pooled.pdf", width = 4, height = 3)
 
 # ## Cesar's figure
 # df_cesar <- read_csv("./data/model_data_mean_long.csv")
