@@ -95,7 +95,7 @@ No separate output for pools (wood, leaf, root)
 - JSBACH
 - JULES
 - OCN
-- SDGVM (only wood missing - could be derived)
+- SDGVM (only wood missing, could be derived by `cdo -O sub SDGVM_S1_cVeg.nc SDGVM_S1_cRoot.nc SDGVM_S1_cLeaf.nc`. cWood is then assumed zero: `cdo mulc,0 SDGVM_S1_cLeaf.nc SDGVM_S1_cWood.nc`, and `cdo -O chname,cLeaf,cWood SDGVM_S1_cWood.nc SDGVM_S1_cWood2.nc`, but is not!)
 - SURFEX
 - VISIT
 
@@ -117,10 +117,15 @@ modls <- filnams %>%
   ## remove models from analysis. See above for reasons for exclusion
   filter(!(modl %in% c("LPJ", "DLEM", "LPX-Bern", "VISIT"))) %>%
   
+  filter(modl != "SDGVM") %>% 
+  
   pull(modl)
 
 df <- filnams %>% 
+  
+  ## filter based on above
   filter(modl %in% modls) %>%
+  
   # mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v8/")) %>% 
   # mutate(dir = paste0("~/data/trendy/v8/")) %>% 
   mutate(dir = paste0("~/data/trendy/v7/")) %>% 
@@ -281,7 +286,7 @@ get_csoil_star <- function(df){
     mutate(csoil_star_init  = csoil_init) %>%
     # mutate(csoil_change = csoil_final - csoil_init) %>%   # overwriting what's read from file - XXX This was wrong XXX
     mutate(csoil_change = csoil_change / 10.0) %>%
-    mutate(csoil_star_final = csoil_final / (1.0 - csoil_change/npp_final ))
+    mutate(csoil_star_final = csoil_final / (1.0 - (csoil_change/10.0)/npp_final ))
 }
 
 gdf <- gdf %>%
@@ -505,14 +510,25 @@ gdf %>%
 #   labs(title = gdf$modl[[3]])
 
 ## all models pooled
-modobs <- gdf %>%
+gdf %>%
   unnest(data) %>%
   dplyr::filter(dcveg_ag < 2 & dcveg_ag > -2 & dcsoil_star < 2 & dcsoil_star > -2) %>%
   dplyr::filter(!is.nan(dcveg_ag), !is.nan(dcsoil_star), !is.infinite(dcveg_ag), !is.infinite(dcsoil_star)) %>%
-  analyse_modobs2("dcveg_ag", "dcsoil_star", type = "hex", plot_subtitle = FALSE, plot_linmod = FALSE)
-modobs$gg +
-  xlim(c(-0.1,0.7)) + ylim(c(-0.1,0.7)) +
-  labs(title = "All models pooled")
+
+  ggplot(aes(x = dcveg_ag, y = dcsoil_star)) +
+  stat_density_2d(aes(fill = after_stat(nlevel)), geom = "polygon") +
+  theme_classic() +
+  geom_abline(intercept=0, slope=1, linetype="dotted") +
+  geom_vline(xintercept = 0, color = "grey50", size = 0.2) +
+  geom_hline(yintercept = 0, color = "grey50", size = 0.2) +
+  scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5),
+                       guide = "legend") +
+  xlim(-0.5, 1.5) + ylim(-0.5, 1.5) +
+  labs(x = expression(paste(Delta, "C"[ag-veg], "/C"[ag-veg])),
+       y = expression(paste(Delta, "C"[soil], "/C"[soil]))) +
+  theme(legend.position = "none",
+        strip.background = element_blank())
+
 
 ## cSoil*, all models separately (facet_grid)
 gdf %>%
@@ -536,7 +552,7 @@ gdf %>%
   scale_fill_gradientn(colours = colorRampPalette( c("gray65", "navy", "red", "yellow"))(5),
                        guide = "legend") +
   facet_wrap(. ~ modl, nrow = 3,  scales = "free") +
-  xlim(-0.5, 1.5) + ylim(-0.5, 1.5) +
+  xlim(-0.2, 1.0) + ylim(-0.2, 1.0) +
   labs(x = expression(paste(Delta, "C"[ag-veg], "/C"[ag-veg])),
        y = expression(paste(Delta, "C"[soil], "/C"[soil]))) +
   theme(legend.position = "none",

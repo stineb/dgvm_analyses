@@ -117,5 +117,11 @@ collect_gdf_bymodl <- function(modl, dir,
     ## add model name as column
     mutate(modl = modl)
   
+  ## manipulated
+  if (modl == "SDGVM"){
+    gdf <- gdf %>% 
+      mutate(cwood_final = cwood_final * 0.0, cwood_init = cwood_init * 0.0)
+  }
+  
   return(gdf)
 }
