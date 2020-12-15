@@ -613,3 +613,106 @@ gdf %>%
   theme(legend.position = "none",
         strip.background = element_blank())
 ```
+
+### Distribution before and after aggregation
+
+```{r}
+## as an example, take LPJ-GUESS outputs
+df <- gdf %>% filter(modl=="LPJ-GUESS") %>% unnest(data)
+
+## "bin" to gridcells
+dlon <- 2
+dlat <- 2
+lon_breaks <- seq(from = floor(min(df$lon)), to = ceiling(max(df$lon)), by = dlon)
+lat_breaks <- seq(from = floor(min(df$lat)), to = ceiling(max(df$lat)), by = dlat)
+
+df <- df %>%
+  ungroup() %>% 
+  mutate(ilon = cut(lon, 
+                    breaks = lon_breaks
+                    ),
+         ilat = cut(lat, 
+                    breaks = lat_breaks
+                    )
+         ) %>% 
+  mutate(lon_lower = as.numeric( sub("\\((.+),.*", "\\1", ilon)),
+         lon_upper = as.numeric( sub("[^,]*,([^]]*)\\]", "\\1", ilon) ),
+         lat_lower = as.numeric( sub("\\((.+),.*", "\\1", ilat) ),
+         lat_upper = as.numeric( sub("[^,]*,([^]]*)\\]", "\\1", ilat) )
+         ) %>% 
+  mutate(lon_mid = (lon_lower + lon_upper)/2,
+         lat_mid = (lat_lower + lat_upper)/2)
+
+## aggregate (remap)
+df_agg <- df %>% 
+  ungroup() %>% 
+  group_by(lon_mid, lat_mid) %>% 
+  summarise(csoil_init = mean(csoil_init, na.rm = TRUE),
+            cveg_init = mean(cveg_init, na.rm = TRUE))
+
+## sample
+df_sampl <- df %>% 
+  ungroup() %>% 
+  slice_sample(n = 4488)
+
+## by aggregation
+##---------------
+## soil C
+gg1 <- df %>% 
+  ungroup() %>% 
+  dplyr::select(csoil_init) %>% 
+  mutate(resolution = "original") %>% 
+  rbind(df_agg %>% 
+          ungroup() %>% 
+          dplyr::select(csoil_init) %>% 
+          mutate(resolution = "coarse")) %>% 
+  ggplot(aes(x = csoil_init, y = ..density.., fill = resolution)) +
+  geom_histogram(alpha = 0.5, position="identity") +
+  labs(title = "Initial soil C", subtitle = "Remapping LPJ-GUESS", x = expression(paste("Soil C (kg m"^-2, ")")))
+
+## veg C
+gg2 <- df %>% 
+  ungroup() %>% 
+  dplyr::select(cveg_init) %>% 
+  mutate(resolution = "original") %>% 
+  rbind(df_agg %>% 
+          ungroup() %>% 
+          dplyr::select(cveg_init) %>% 
+          mutate(resolution = "coarse")) %>% 
+  ggplot(aes(x = cveg_init, y = ..density.., fill = resolution)) +
+  geom_histogram(alpha = 0.5, position="identity") +
+  labs(title = "Initial vegetation C", subtitle = "Remapping LPJ-GUESS", x = expression(paste("Vegetation C (kg m"^-2, ")")))
+
+## by sampling
+##---------------
+## soil C
+gg3 <- df %>% 
+  ungroup() %>% 
+  dplyr::select(csoil_init) %>% 
+  mutate(sample = "all") %>% 
+  rbind(df_sampl %>% 
+          ungroup() %>% 
+          dplyr::select(csoil_init) %>% 
+          mutate(sample = "subset")) %>% 
+  ggplot(aes(x = csoil_init, y = ..density.., fill = sample)) +
+  geom_histogram(alpha = 0.5, position="identity") +
+  labs(title = "Initial soil C", subtitle = "Sampling LPJ-GUESS", x = expression(paste("Soil C (kg m"^-2, ")")))
+
+## veg C
+gg4 <- df %>% 
+  ungroup() %>% 
+  dplyr::select(cveg_init) %>% 
+  mutate(sample = "all") %>% 
+  rbind(df_sampl %>% 
+          ungroup() %>% 
+          dplyr::select(cveg_init) %>% 
+          mutate(sample = "subset")) %>% 
+  ggplot(aes(x = cveg_init, y = ..density.., fill = sample)) +
+  geom_histogram(alpha = 0.5, position="identity") +
+  labs(title = "Initial vegetation C", subtitle = "Sampling LPJ-GUESS", x = expression(paste("Vegetation C (kg m"^-2, ")")))
+
+library(patchwork)
+(gg1 + gg2) /
+  (gg3 + gg4)
+ggsave("fig/distr_aggregation.pdf", width = 10, height = 7)
+```
