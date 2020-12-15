@@ -195,10 +195,10 @@ out <- purrr::map(as.list(df %>% pull(cmd_npp)),    ~system(., intern = TRUE))
 ## get additional fields needed to estimate steady-state for soil C
 out <- purrr::map(as.list(df %>% pull(cmd_dcSoil)), ~system(., intern = TRUE))
 
-## get additional fields needed to estimate steady-state for veg C, leaf C, and wood C
-out <- purrr::map(as.list(df %>% pull(cmd_dcVeg)), ~system(., intern = TRUE))
-out <- purrr::map(as.list(df %>% pull(cmd_dcLeaf)), ~system(., intern = TRUE))
-out <- purrr::map(as.list(df %>% pull(cmd_dcWood)), ~system(., intern = TRUE))
+# ## get additional fields needed to estimate steady-state for veg C, leaf C, and wood C
+# out <- purrr::map(as.list(df %>% pull(cmd_dcVeg)), ~system(., intern = TRUE))
+# out <- purrr::map(as.list(df %>% pull(cmd_dcLeaf)), ~system(., intern = TRUE))
+# out <- purrr::map(as.list(df %>% pull(cmd_dcWood)), ~system(., intern = TRUE))
 
 ## for remaining...
 out <- purrr::map(as.list(df %>% pull(cmd_cLeaf)),  ~system(., intern = TRUE))
@@ -294,7 +294,7 @@ get_csoil_star <- function(df){
     mutate(csoil_star_init  = csoil_init) %>%
     # mutate(csoil_change = csoil_final - csoil_init) %>%   # overwriting what's read from file - XXX This was wrong XXX
     mutate(csoil_change = csoil_change / 10.0) %>%
-    mutate(csoil_star_final = csoil_final / (1.0 - (csoil_change/10.0)/npp_final ))
+    mutate(csoil_star_final = csoil_final / (1.0 - (csoil_change)/npp_final ))
 }
 
 gdf <- gdf %>%
@@ -715,4 +715,9 @@ library(patchwork)
 (gg1 + gg2) /
   (gg3 + gg4)
 ggsave("fig/distr_aggregation.pdf", width = 10, height = 7)
+```
+
+Write to file.
+```{r}
+save(gdf, file = "data/gdf.RData")
 ```
