@@ -63,7 +63,8 @@ From downloaded TRENDY outputs (here, simulation S2: only CO2 is changing), get 
 Determine for which models we have all the files (cWood and cVeg) to calculate wood mass fractions and create system command.
 ```{r}
 # availvars <- read_csv( "E:/Cesar_project_csoil/Trendy_v8_beni/dgvm_analyses-master/availvars_trendy_v8_S1.csv" )
-filnams <- read_csv( "E:/Cesar_project_csoil/Trendy_v8_beni/dgvm_analyses-master/filnams_CMIP5.csv" ) %>% 
+setwd("F:/Side_project/Beni/dgvm_analyses/CMIP5") #This is the directory of this rmd file
+filnams <- read_csv( "Processed_data/filnams_CMIP5.csv" ) %>% 
   setNames(c("modl", paste0("filn_", names(.)[-1])))
 
 modls <- filnams %>% 
@@ -77,7 +78,7 @@ modls <- filnams %>%
 df <- filnams %>% 
   filter(modl %in% modls) %>%
   # mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v8/")) %>% 
-  mutate(dir = paste0("E:/Cesar_project_csoil/CMIP5/rawdata2")) %>% 
+  mutate(dir = paste0("Processed_data")) %>% 
   mutate_at(1:10, ~str_replace(., ".nc", "")) %>%
   
   ## create CDO command to take mean across years at simulation start and end
@@ -114,6 +115,7 @@ df <- filnams %>%
 ```
 
 Execute function using CDO.
+(we are not doing this for CMIP5 ,because INIT and FINAL files were prepared by matlab codes, not cdo)
 ```{r}
 # out <- purrr::map(as.list(df %>% pull(cmd_cVeg)),  ~system(., intern = TRUE))
 # out <- purrr::map(as.list(df %>% pull(cmd_cLeaf)),  ~system(., intern = TRUE))
@@ -130,9 +132,9 @@ Execute function using CDO.
 
 ```{r}
 #please find these R functions by searching rbeni github
-source("E:/Cesar_project_csoil/Trendy_v8_beni/dgvm_analyses-master/R/collect_gdf_bymodl.R")
-source("E:/Cesar_project_csoil/Trendy_v8_beni/dgvm_analyses-master/R/read_nc_onefile.R")
-source("E:/Cesar_project_csoil/Trendy_v8_beni/dgvm_analyses-master/rbeni-master/R/nc_to_df.R")
+source("Processed_data/collect_gdf_bymodl.R")
+source("Processed_data/read_nc_onefile.R")
+source("Processed_data/nc_to_df.R")
 gdf <- purrr::map(
   
   as.list(seq(nrow(df))),
@@ -221,7 +223,7 @@ gdf <- gdf %>%
 ###########################################################################
 
 
-#save(gdf,file="E:/Cesar_project_csoil/CMIP5/gdf_CMIP5.rda")
+#save(gdf,file="Processed_data/gdf_CMIP5.rda")
 
 
 # Because Beni asked me to: One thing that needs verification is whether the NPP averaging and units conversion are correct. Could you check whether globally integrated NPP is on the order of 60-80 PgC yr-1 (order-of-magnitude check). And a second point: whether the ratio csoil_change/npp_final is between 0 and 1 for all grid cells (calculated in get_csoil_star function in soc_biomass.Rmd).
@@ -229,9 +231,9 @@ gdf <- gdf %>%
 ##::::::::::::::::::::::::::::
 ##  check globally total NPP  
 ##::::::::::::::::::::::::::::
-load("E:/Cesar_project_csoil/CMIP5/gdf_CMIP5.rda")
+load("Processed_data/gdf_CMIP5.rda")
 
-source("E:/Cesar_project_csoil/Trendy_v8_beni/dgvm_analyses-master/rbeni-master/R/df_to_grid.R")
+source("Processed_data/df_to_grid.R")
 rotate_matrix <- function(x) apply(t(x), 2, rev)
 suppressMessages(library(raster))
 for (model_num in 1:nrow(gdf)){
@@ -262,6 +264,7 @@ print(paste("model name:",gdf$modl[model_num],"npp_init",round(npp_sum_init),"np
 print(dim(npp_init))
 }
 
+#This print out NPP magnitude first. then dimension of the map
 
 for (model_num in 1:nrow(gdf)){
   npp_init<-gdf$data[[model_num]]%>% 
@@ -281,8 +284,8 @@ Plot relationships:
 
 ```{r}
 ## just one model
-source("E:/Cesar_project_csoil/Trendy_v8_beni/dgvm_analyses-master/rbeni-master/R/analyse_modobs2.R")
-source("E:/Cesar_project_csoil/Trendy_v8_beni/dgvm_analyses-master/rbeni-master/R/LSD.heatscatter.R")
+source("Processed_data/analyse_modobs2.R")
+source("Processed_data/LSD.heatscatter.R")
 
 library(ggplot2)
 modobs <- gdf$data[[3]] %>%

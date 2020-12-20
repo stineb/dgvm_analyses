@@ -1,0 +1,7 @@
+modl,cLeaf,cRoot,cVeg,cWood,cSoil,npp,fNloss,fNup,fBNF,fNdep,Remarks
+CanESM2,CanESM2_cLeaf.nc,CanESM2_cRoot.nc,CanESM2_cVeg.nc,CanESM2_cWood.nc,CanESM2_cSoil.nc,CanESM2_npp.nc,,,,,
+GFDL-ESM2M,GFDL-ESM2M_cLeaf.nc,GFDL-ESM2M_cRoot.nc,GFDL-ESM2M_cVeg.nc,GFDL-ESM2M_cWood.nc,GFDL-ESM2M_cSoil.nc ,GFDL-ESM2M_npp.nc,,,,,
+HadGEM2-ES,HadGEM2-ES_cLeaf.nc,HadGEM2-ES_cRoot.nc,HadGEM2-ES_cVeg.nc,HadGEM2-ES_cWood.nc,HadGEM2-ES_cSoil.nc,HadGEM2-ES_npp.nc,,,,,
+IPSL-CM5A-LR,IPSL-CM5A-LR_cLeaf.nc,IPSL-CM5A-LR_cRoot.nc,IPSL-CM5A-LR_cVeg.nc,IPSL-CM5A-LR_cWood.nc,IPSL-CM5A-LR_cSoil.nc,IPSL-CM5A-LR_npp.nc,,,,,
+MRI-ESM1,MRI-ESM1_cLeaf.nc,MRI-ESM1_cRoot.nc,MRI-ESM1_cVeg.nc,MRI-ESM1_cWood.nc,MRI-ESM1_cSoil.nc,MRI-ESM1_npp.nc,,,,,
+NorESM1-ME,NorESM1-ME_cLeaf.nc,NorESM1-ME_cRoot.nc,NorESM1-ME_cVeg.nc,NorESM1-ME_cWood.nc,NorESM1-ME_cSoil.nc,NorESM1-ME_npp.nc,,,,,
