@@ -4,11 +4,10 @@ library(tidyr)
 library(ggplot2)
 library(readr)
 library(stringr)
-library(rbeni)
 
-setwd("E:/RA/Pugh/processed_well_done/processed/processednew")
+setwd("F:/Side_project/Beni/dgvm_analyses/Pugh_et_al_data/")
 # filnams <- read_csv( "filnams_trendy_v8_S1.csv" ) %>% 
-filnams <- read_csv( "filnams_Pugh_S1.csv" ) %>% 
+filnams <- read_csv( "Processed_data/filnams_Pugh_S1.csv" ) %>% 
   setNames(c("modl", paste0("filn_", names(.)[-1])))
 
 modls <- filnams %>% 
@@ -28,17 +27,17 @@ df <- filnams %>%
   
   # mutate(dir = paste0("/cluster/home/bestocke/data/trendy/v8/")) %>% 
   # mutate(dir = paste0("~/data/trendy/v8/")) %>% 
-  mutate(dir = paste0("E:/RA/Pugh/processed_well_done/processed")) %>% 
+  mutate(dir = paste0("Processed_data")) %>% 
   mutate_at(vars(starts_with("filn")), ~str_replace(., "\\.nc", "")) %>%
   mutate_at(vars(starts_with("filn")), ~str_replace(., "cleaf", "cLeaf")) %>%
   mutate_at(vars(starts_with("filn")), ~str_replace(., "croot", "cRoot")) %>%
   mutate_at(vars(starts_with("filn")), ~str_replace(., "csoil", "cSoil")) %>%
   mutate_at(vars(starts_with("filn")), ~str_replace(., "cveg", "cVeg")) %>%
   mutate_at(vars(starts_with("filn")), ~str_replace(., "cwood", "cWood")) %>%
-  mutate_at(vars(starts_with("filn")), ~str_replace(., "cRootf", "cRoot")) %>%
+  mutate_at(vars(starts_with("filn")), ~str_replace(., "cRootf", "cRoot"))%>%
   
   ## get starting year
-  left_join(read_csv("E:/RA/Pugh/processed_well_done/processed/processednew/startyear_Pugh_S1.csv"), by = "modl") %>% 
+  left_join(read_csv("Processed_data/startyear_Pugh_S1.csv"), by = "modl") %>% 
   rename(startyear_init = startyear, startyear_npp_init = startyear_npp) %>% 
   mutate(endyear_init = startyear_init + 9, endyear_npp_init = startyear_npp_init + 9) %>% 
   
@@ -87,8 +86,10 @@ df <- filnams %>%
 #cabsoil<-nc_open('lpjml_cruncep_cSoil_annual_1901_2014_INIT_MEAN.nc')
 #ncvarrename(cabsoil,'csoil_fast','csoil')
 
-
-source("R/collect_gdf_bymodl.R")
+source("Processed_data/collect_gdf_bymodl.R")
+source("Processed_data/read_nc_onefile.R")
+source("Processed_data/nc_to_df.R")
+source("Processed_data/collect_gdf_bymodl.R")
 gdf <- purrr::map(
   
   as.list(seq(nrow(df))),
@@ -157,6 +158,10 @@ gdf <- gdf %>%
 
 ### Biomass vs. NPP change
 ## just one model
+source("Processed_data/analyse_modobs2.R")
+source("Processed_data/LSD.heatscatter.R")
+
+
 modobs <- gdf$data[[2]] %>%
   dplyr::filter(dnpp < 2 & dnpp > -2 & dcveg < 2 & dcveg > -2) %>%
   dplyr::filter(!is.nan(dnpp), !is.nan(dcveg), !is.infinite(dnpp), !is.infinite(dcveg)) %>%
