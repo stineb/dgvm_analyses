@@ -425,4 +425,59 @@ gdf %>%
         strip.background = element_blank())
 
 ggsave(filename = "dcsoil_dcveg_ag_Pugh.pdf", width = 4, height = 3, path = "E:/RA/Pugh/processed_well_done/processed/processednew")
-save(gdf, file = "gdf.RData")
+#save(gdf, file = "gdf.RData")
+
+
+# Because Beni asked me to: One thing that needs verification is whether the NPP averaging and units conversion are correct. Could you check whether globally integrated NPP is on the order of 60-80 PgC yr-1 (order-of-magnitude check). And a second point: whether the ratio csoil_change/npp_final is between 0 and 1 for all grid cells (calculated in get_csoil_star function in soc_biomass.Rmd).
+
+##::::::::::::::::::::::::::::
+##  check globally total NPP  
+##::::::::::::::::::::::::::::
+load("Processed_data/gdf.RData")
+
+source("Processed_data/df_to_grid.R")
+rotate_matrix <- function(x) apply(t(x), 2, rev)
+suppressMessages(library(raster))
+
+par(mfrow=c(2,3))
+for (model_num in 1:nrow(gdf)){
+  npp_init<-gdf$data[[model_num]]%>% 
+    dplyr::select(lon,lat,npp_init)%>% 
+    df_to_grid(varnam = "npp_init")%>%
+    rotate_matrix()
+  
+  map_kg_m2 <-raster::raster(npp_init,crs=sp::CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'),xmn=0, xmx=360,
+                             ymn=-90, ymx=+90) #unit: kg/m2, it was kg/m2/s but has been converted in collect_gdf_bymodl.R
+  plot(map_kg_m2)
+  a <- raster::area(map_kg_m2)
+  map_MgPixel <- map_kg_m2 * a * 1000000 #convert /s to /year and convert km2 to m2
+  npp_sum_init<-cellStats(map_MgPixel,"sum", na.rm=T) * 10^(-12) #from kg to Pg
+  
+  
+  npp_init<-gdf$data[[model_num]]%>% 
+    dplyr::select(lon,lat,npp_final)%>% 
+    df_to_grid(varnam = "npp_final")%>% 
+    rotate_matrix()
+  
+  map_kg_m2 <-raster::raster(npp_init,crs=sp::CRS('+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')  ,xmn=0, xmx=360,
+                             ymn=-90, ymx=+90) #unit: kg/m2, it was kg/m2/s but has been converted in collect_gdf_bymodl.R
+  a <- raster::area(map_kg_m2)
+  map_MgPixel <- map_kg_m2 * a * 1000000 #convert /s to /year and convert km2 to m2
+  npp_sum_final<-cellStats(map_MgPixel,"sum", na.rm=T) * 10^(-12) #from kg to Pg
+  print(paste("model name:",gdf$modl[model_num],"npp_init",round(npp_sum_init),"npp_sum_final",round(npp_sum_final)))
+  print(dim(npp_init))
+}
+
+#This print out NPP magnitude first. then dimension of the map
+
+for (model_num in 1:nrow(gdf)){
+  npp_init<-gdf$data[[model_num]]%>% 
+    dplyr::select(csoil_change,npp_final)%>% 
+    mutate(Beni_checker=csoil_change/npp_final)%>%
+    dplyr::select(Beni_checker)
+  colnames(npp_init)<-gdf$modl[[model_num]]
+  print(gdf$modl[[model_num]])
+  print(npp_init[,1] %>% quantile(., probs = c(0.1, 0.5, 0.9), na.rm=T))
+}
+
+```
