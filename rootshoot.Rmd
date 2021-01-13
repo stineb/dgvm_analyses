@@ -37,7 +37,7 @@ From downloaded TRENDY outputs (here, simulation S2: only CO2 is changing), get 
 
 Information about tree vs. grass-PFT coverage needs to be extracted from NetCDF files for each model separately. This is done by hand and information saved in `pft_tree_grass_trendy_v8.csv`.
 ```{r}
-df_treegrass <- read_csv("pft_tree_grass_trendy_v8.csv")
+df_treegrass <- read_csv("F:/Side_project/Beni/dgvm_analyses/pft_tree_grass_trendy_v8.csv")
 
 ## Get tree-indices as a list for each model (nicely reading from CSV file)
 get_tree_pft_id <- function(df){
