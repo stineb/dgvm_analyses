@@ -85,7 +85,6 @@ df <- filnams %>%
 #######change the variable name
 #cabsoil<-nc_open('lpjml_cruncep_cSoil_annual_1901_2014_INIT_MEAN.nc')
 #ncvarrename(cabsoil,'csoil_fast','csoil')
-
 source("Processed_data/collect_gdf_bymodl.R")
 source("Processed_data/read_nc_onefile.R")
 source("Processed_data/nc_to_df.R")
@@ -153,6 +152,11 @@ get_csoil_star <- function(df){
 gdf <- gdf %>%
   mutate(data = purrr::map(data, ~get_csoil_star(.))) %>%
   mutate(data = purrr::map(data, ~get_deltas(.)))
+
+##-------------------------------------------------------------------------
+##  load gdf here if you dont want to make it yourself with above codes   -
+##-------------------------------------------------------------------------
+###load('Processed_data/gdf.RData')
 
 #Plot relationships:
 
