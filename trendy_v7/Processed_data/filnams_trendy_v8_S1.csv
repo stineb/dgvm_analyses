@@ -1,0 +1,18 @@
+modl,cLeaf,cRoot,cVeg,cWood,cSoil,npp,fNloss,fNup,fBNF,fNdep,Remarks
+CABLE-POP,CABLE-POP_S1_cLeaf.nc,CABLE-POP_S1_cRoot.nc,CABLE-POP_S1_cVeg.nc,CABLE-POP_S1_cWood.nc,CABLE-POP_S1_cSoil.nc,CABLE-POP_S1_npp_ANN.nc,,,,,
+CLASS-CTEM,CLASS-CTEM_S1_cLeaf.nc,CLASS-CTEM_S1_cRoot.nc,CLASS-CTEM_S1_cVeg.nc,CLASS-CTEM_S1_cWood.nc,CLASS-CTEM_S1_cSoil.nc ,CLASS-CTEM_S1_npp_ANN.nc,,,,,
+CLM5.0,,,,,,,,,,,
+CLM5.0_Corrected,CLM5.0_S1_cLeaf.nc,CLM5.0_S1_cRoot.nc,CLM5.0_S1_cVeg.nc,CLM5.0_S1_cWood.nc,CLM5.0_S1_cSoil.nc,CLM5.0_S1_npp_ANN.nc,,,,,
+DLEM,,,DLEM_S1_cVeg.nc,,DLEM_S1_cSoil.nc,,,,,,
+ISAM,ISAM_S1_cLeaf.nc,ISAM_S1_cRoot.nc,ISAM_S1_cVeg.ncÊ,ISAM_S1_cWood.nc,,ISAM_S1_npp_ANN.nc,,,,,
+ISBA-CTRIP-UPDATE,,,,,,,,,,,
+JSBACH,,,JSBACH_S1_cVeg.nc,,JSBACH_S1_cSoil.nc,JSBACH_S1_npp_ANN.nc,,,,,
+JULES-ES-1.0,,,JULES-ES.1p0.vn5.4.50.CRUJRA2.TRENDYv8.365.S1_Annual_cVeg.nc,,JULES-ES.1p0.vn5.4.50.CRUJRA2.TRENDYv8.365.S1_Annual_cSoil.nc,JULES-ES.1p0.vn5.4.50.CRUJRA2.TRENDYv8.365.S1_Annual_npp.nc,,,,,
+LPJ-GUESS,LPJ-GUESS_S1_cLeaf.nc,LPJ-GUESS_S1_cRoot.nc,LPJ-GUESS_S1_cVeg.nc,LPJ-GUESS_S1_cWood.nc,LPJ-GUESS_S1_cSoil.nc,LPJ-GUESS_S1_npp_ANN.nc,,,,,
+LPJ-wsl,,,,,,,,,,,
+LPX-Bern,LPX-Bern_S1_cLeaf.nc,LPX-Bern_S1_croot.nc,,LPX-Bern_S1_cWood.nc,LPX-Bern_S1_cSoil.nc ,,,,,,Omitted because CDO fails because of “unsupported file structure”
+OCN,,,OCN_S1_cVeg.nc,,OCN_S1_cSoil.nc,,,,,,
+ORCHIDEE,ORCHIDEE_S1_cLeaf.nc,ORCHIDEE_S1_cRoot.nc,ORCHIDEE_S1_cVeg.nc,ORCHIDEE_S1_cWood.nc,ORCHIDEE_S1_cSoil.nc,ORCHIDEE_S1_npp_ANN.nc,,,,,
+ORCHIDEE-CNP,ORCHIDEE-CNP_S1_cLeaf.nc,ORCHIDEE-CNP_S1_cRoot.nc,ORCHIDEE-CNP_S1_cVeg.nc,ORCHIDEE-CNP_S1_cWood.nc,ORCHIDEE-CNP_S1_cSoil.nc,ORCHIDEE-CNP_S1_npp_ANN.nc,,,,,
+SDGVM,,,SDGVM_S1_cVeg.nc,,SDGVM_S1_cSoil.nc,SDGVM_S1_npp_ANN.nc,,,,,
+VISIT,,,,,,,,,,,

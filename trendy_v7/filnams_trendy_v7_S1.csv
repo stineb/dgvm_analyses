@@ -1,0 +1,17 @@
+modl,npp,npp_ANN,cVeg,cSoil,cWood,cLeaf,cRoot,gpp,rh
+CABLE,CABLE-POP_S1_npp.nc,CABLE-POP_S1_npp_ANN.nc,CABLE-POP_S1_cVeg.nc,CABLE-POP_S1_cSoil.nc,CABLE-POP_S1_cWood.nc,CABLE-POP_S1_cLeaf.nc,CABLE-POP_S1_cRoot.nc,CABLE-POP_gpp.nc,CABLE-POP_rh.nc
+CLASS-CTEM,CLASS-CTEM_S1_monthly_npp.nc,CLASS-CTEM_S1_monthly_npp_ANN.nc,CLASS-CTEM_S1_annual_cVeg.nc,CLASS-CTEM_S1_annual_cSoil.nc,,,,,
+CLM,CLM5.0_S1_npp.nc,CLM5.0_S1_npp_ANN.nc,CLM5.0_S1_cVeg.nc,CLM5.0_S1_cSoil.nc,CLM5.0_S1_cWood.nc,CLM5.0_S1_cLeaf.nc,CLM5.0_S1_cRoot.nc,CLM5.0_gpp.nc,CLM5.0_rh.nc
+DLEM,DLEM_S1_npp.nc,DLEM_S1_npp_ANN.nc,DLEM_S1_cVeg.nc,DLEM_S1_cSoil.nc,,,,,
+ISAM,ISAM_S1_npp.nc,ISAM_S1_npp_ANN.nc,ISAM_S1_cVeg.nc,ISAM_S1_cSoil.nc,ISAM_S1_cWood.nc,ISAM_S1_cLeaf.nc,ISAM_S1_cRoot.nc,ISAM_gpp.nc,ISAM_rh.nc
+JSBACH,JSBACH_S1_npp.nc,JSBACH_S1_npp_ANN.nc,JSBACH_S1_cVeg.nc,JSBACH_S1_cSoil.nc,,,,,
+JULES,JULES_S1_npp.nc,JULES_S1_npp_ANN.nc,JULES_S1_cVeg.nc,JULES_S1_cSoil.nc,,,,,
+LPJ,,,,,,,,,
+LPJ-GUESS,LPJ-GUESS_S1_npp.nc,LPJ-GUESS_S1_npp_ANN.nc,LPJ-GUESS_S1_cVeg.nc,LPJ-GUESS_S1_cSoil.nc,LPJ-GUESS_S1_cWood.nc,LPJ-GUESS_S1_cLeaf.nc,LPJ-GUESS_S2_cRoot.nc,LPJ-GUESS_gpp.nc,LPJ-GUESS_rh.nc
+OCN,OCN_S1_npp.nc,OCN_S1_npp_ANN.nc,OCN_S1_cVeg.nc,OCN_S1_cSoil.nc,,,,,
+LPX-Bern,LPX_S1_npp.nc,,LPX_S1_cVeg.nc,LPX_S1_cSoil.nc,,,,,
+ORCHIDEE,ORCHIDEE_S1_npp.nc,ORCHIDEE_S1_npp_ANN.nc,ORCHIDEE_S1_cVeg.nc,ORCHIDEE_S1_cSoil.nc,ORCHIDEE_S1_cWood.nc,ORCHIDEE_S1_cLeaf.nc,ORCHIDEE_S1_cRoot.nc,ORCHIDEE_gpp.nc,ORCHIDEE_rh.nc
+ORCHIDEE-CNP,ORCHIDEE-CNP_S1_npp.nc,ORCHIDEE-CNP_S1_npp_ANN.nc,ORCHIDEE-CNP_S1_cVeg.nc,ORCHIDEE-CNP_S1_cSoil.nc,ORCHIDEE-CNP_S1_cWood.nc,ORCHIDEE-CNP_S1_cLeaf.nc,ORCHIDEE-CNP_S1_cRoot.nc,ORCHIDEE-CNP_gpp.nc,ORCHIDEE-CNP_rh.nc
+SDGVM,SDGVM_S1_npp.nc,SDGVM_S1_npp_ANN.nc,SDGVM_S1_cVeg.nc,SDGVM_S1_cSoil.nc,,SDGVM_S1_cLeaf.nc,SDGVM_S1_cRoot.nc,,
+SURFEX,SURFEX_S1_npp.nc,SURFEX_S1_npp_ANN.nc,SURFEX_S1_cVeg_ANN.nc,SURFEX_S1_cSoil_ANN.nc,,,,,
+VISIT,,,VISIT_S1_cVeg.nc,VISIT_S1_cSoil.nc,,,,,
