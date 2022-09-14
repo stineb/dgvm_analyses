@@ -1,0 +1,86 @@
+---
+title: "Terrestrial sink trends"
+output: html_document
+date: "2022-09-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## GCB 2021 / TRENDY v8
+
+```{r cars}
+df <- read_csv("~/data/globalcarbonproject/gcp-2021/Global_Carbon_Budget_2021v1.0_tab_terr_sink.csv")
+```
+
+Define decades
+```{r pressure, echo=FALSE}
+df <- df %>% 
+  mutate(decade = ifelse(Year > 1979 & Year < 1990, 
+                         1980,
+                         ifelse(Year > 1989 & Year < 2000, 1990,
+                                ifelse(Year > 1999 & Year < 2010, 2000,
+                                       ifelse(Year > 2009, 2010, NA)))
+                         ))
+```
+
+Re-format data
+```{r}
+df_models <- df %>% 
+  select(-GCB, -mean_models, -sd_models) %>% 
+  pivot_longer(cols = c("CABLE-POP",  "CLASSIC",    "CLM5.0",     "DLEM",       "IBIS",       "ISAM",       "ISBA-CTRIP", "JSBACH",     "JULES-ES", "LPJ-GUESS",  "LPJ",        "LPX-Bern",   "OCNv2",      "ORCHIDEE-v3","SDGVM",      "VISIT",      "YIBs"),
+               names_to = "model",
+               values_to = "sland"
+              )
+
+# df_models %>% 
+#   select(model) %>% 
+#   distinct() %>% 
+#   mutate(type = "") %>% 
+#   write_csv(file = "data/model_types_trendy_gcp2021.csv")
+
+df_modeltypes <- read_csv("data/model_types_trendy_gcp2021.csv")
+
+df_decades <- df_models %>% 
+  drop_na() %>% 
+  group_by(decade, model) %>% 
+  summarise(sland = mean(sland)) %>% 
+  left_join(
+    df_modeltypes,
+    by = "model"
+  )
+
+df_decades_obs <- df %>% 
+  drop_na() %>% 
+  group_by(decade) %>% 
+  summarise(sland = mean(GCB))
+```
+
+Plot
+```{r}
+ggplot() +
+  geom_boxplot(data = df_decades, aes(as.factor(decade), sland, fill = type)) +
+  geom_jitter(data = df_decades, aes(as.factor(decade), sland), width = 0.1) +
+  geom_point(data = df_decades_obs, aes(as.factor(decade), sland), color = "royalblue", size = 5)
+```
+
+```{r}
+df %>% 
+  ggplot(aes(Year, GCB)) + 
+  geom_line(color = "grey50") +
+  geom_smooth(method = "lm", color = "black")
+
+df_models %>% 
+  group_by(Year, type) %>% 
+  summarise(sland = mean(sland)) %>% 
+  bind_rows(
+    df %>% 
+      select(Year, sland = GCB) %>% 
+      mutate(type = "obs")
+  ) %>% 
+  ggplot(aes(Year, sland, color = type)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  geom_line()
+```
