@@ -71,10 +71,12 @@ read_one_file <- function(idx, df){
 }
 
 df_lai <- map_dfr(
-  # as.list(seq(nrow(df))),
-  as.list(1),
+  as.list(seq(nrow(df))),
+  # as.list(1),
   ~read_one_file(., df)
   )
+
+saveRDS(df_lai, file = "data/df_lai.rds")
 
 df_lai %>% 
   ggplot(aes(time, lai, color = model)) +
