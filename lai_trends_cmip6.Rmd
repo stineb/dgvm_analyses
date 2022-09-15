@@ -22,6 +22,9 @@ filnams <- read_delim("data/filnams_cmip6_historical.txt", delim = "\n")
 models <- purrr:::map_chr(as.list(filnams %>% pull(filnam)), ~return_model_name(.)) %>% 
   unique()
 
+## get info on land model from table, downloaded from https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id.html
+df_models <- read_csv("data/cmip6_models_landmodel.csv")
+
 find_one_file <- function(model, myfilnams){
  myfilnams %>% 
   filter(str_detect(filnam, model)) %>% 
@@ -45,8 +48,8 @@ filnams_reduced <- purrr::map_dfr(as.list(models), ~find_one_file(., filnams))
 
 Get time series of LAI averaged across northern regions
 ```{r}
-# indir <- "/nfs/ch4/data/cmip6-Next_Generation/lai/mon/g025/"
-indir <- "~/data/cmip6/mon/g025/"
+indir <- "/nfs/ch4/data/cmip6-Next_Generation/lai/mon/g025/"
+# indir <- "~/data/cmip6/mon/g025/"
 outdir <- "~/data/cmip6/mon/g025/"
 
 df <- filnams_reduced %>% 
@@ -75,10 +78,41 @@ df_lai <- map_dfr(
   # as.list(1),
   ~read_one_file(., df)
   )
+```
 
-saveRDS(df_lai, file = "data/df_lai.rds")
+```{r}
+# saveRDS(df_lai, file = "data/df_lai.rds")
+df_lai <- readRDS("data/df_lai.rds")
 
 df_lai %>% 
   ggplot(aes(time, lai, color = model)) +
   geom_line()
+```
+
+Get temporal trend for each model.
+```{r}
+get_trend <- function(adf, year_start){
+  adf <- adf %>% 
+    filter(time >= year_start)
+  linmod <- lm(lai ~ time, data = adf)
+  laitrend <- coef(linmod)["time"]
+  return(laitrend)
+}
+
+df_lai_nested <- df_lai %>% 
+  group_by(model) %>% 
+  nest() %>% 
+  mutate(trend = purrr::map_dbl(data, ~get_trend(., year_start = 1982))) %>% 
+  left_join(
+    df_models %>% 
+      select(model, type),
+    by = "model"
+  )
+
+df_lai_nested %>% 
+  filter(!is.na(type) & trend > 1e-9) %>% 
+  ggplot(aes(x = type, y = trend)) +
+  geom_boxplot(fill = "grey70") +
+  geom_jitter(width = 0.1) +
+  theme_classic()
 ```

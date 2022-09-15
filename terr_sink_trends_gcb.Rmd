@@ -7,6 +7,7 @@ date: "2022-09-14"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(patchwork)
 ```
 
 ## GCB 2021 / TRENDY v8
@@ -52,6 +53,12 @@ df_decades <- df_models %>%
     by = "model"
   )
 
+df_models <- df_models %>% 
+  left_join(
+    df_modeltypes,
+    by = "model"
+  )
+
 df_decades_obs <- df %>% 
   drop_na() %>% 
   group_by(decade) %>% 
@@ -62,8 +69,8 @@ Plot
 ```{r}
 ggplot() +
   geom_boxplot(data = df_decades, aes(as.factor(decade), sland, fill = type)) +
-  geom_jitter(data = df_decades, aes(as.factor(decade), sland), width = 0.1) +
-  geom_point(data = df_decades_obs, aes(as.factor(decade), sland), color = "royalblue", size = 5)
+  geom_jitter(data = df_decades, aes(as.factor(decade), sland, color = type), width = 0.1) +
+  geom_point(data = df_decades_obs, aes(as.factor(decade), sland), color = "black", size = 5)
 ```
 
 ```{r}
@@ -72,7 +79,7 @@ df %>%
   geom_line(color = "grey50") +
   geom_smooth(method = "lm", color = "black")
 
-df_models %>% 
+gg1 <- df_models %>% 
   group_by(Year, type) %>% 
   summarise(sland = mean(sland)) %>% 
   bind_rows(
@@ -82,5 +89,37 @@ df_models %>%
   ) %>% 
   ggplot(aes(Year, sland, color = type)) +
   geom_smooth(method = "lm", se = FALSE) +
-  geom_line()
+  geom_line() +
+  theme_classic()
+
+get_trend <- function(adf, year_start){
+  adf <- adf %>% 
+    filter(Year >= year_start)
+  linmod <- lm(sland ~ Year, data = adf)
+  sinktrend <- coef(linmod)["Year"]
+  return(sinktrend)
+}
+
+df_models_trend <- df_models %>% 
+  bind_rows(
+    df %>% 
+      select(Year, sland = GCB) %>% 
+      mutate(model = "obs")
+  ) %>% 
+  group_by(model) %>% 
+  nest() %>% 
+  mutate(trend = purrr::map_dbl(data, ~get_trend(., year_start = 1959))) %>% 
+  left_join(
+    df_modeltypes,
+    by = "model"
+  ) %>% 
+  mutate(type = ifelse(is.na(type), "obs", type))
+
+gg2 <- df_models_trend %>% 
+  ggplot(aes(type, trend, color = type)) +
+  geom_boxplot(fill = "grey80") +
+  geom_jitter(width = 0.1) + 
+  theme_classic()
+
+gg1 + gg2
 ```
