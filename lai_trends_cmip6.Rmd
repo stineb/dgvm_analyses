@@ -1,0 +1,82 @@
+---
+title: "LAI trends in CMIP6"
+output: html_document
+date: "2022-09-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(stringr)
+```
+
+Determine file names of one file per model (not entire ensemble).
+```{r}
+return_model_name <- function(string){
+  tmp = str_locate(string, "_historical_")[1]
+  return(str_sub(string, start = 9, end = (tmp - 1)))
+}
+
+filnams <- read_delim("data/filnams_cmip6_historical.txt", delim = "\n")
+
+models <- purrr:::map_chr(as.list(filnams %>% pull(filnam)), ~return_model_name(.)) %>% 
+  unique()
+
+find_one_file <- function(model, myfilnams){
+ myfilnams %>% 
+  filter(str_detect(filnam, model)) %>% 
+  slice(1) %>% 
+  mutate(model = model)
+}
+
+filnams_reduced <- purrr::map_dfr(as.list(models), ~find_one_file(., filnams))
+```
+
+<!-- Download files. -->
+<!-- ```{r} -->
+<!-- indir <- "/nfs/ch4/data/cmip6-Next_Generation/lai/mon/g025/" -->
+<!-- outdir <- "~/data/cmip6/mon/g025/" -->
+
+<!-- df <- filnams_reduced %>%  -->
+<!--   mutate(cmd = paste0("scp bestocke@euler.ethz.ch:/nfs/ch4/data/cmip6-Next_Generation/lai/mon/g025/", filnam, " ", outdir)) -->
+
+<!-- out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE)) -->
+<!-- ``` -->
+
+Get time series of LAI averaged across northern regions
+```{r}
+# indir <- "/nfs/ch4/data/cmip6-Next_Generation/lai/mon/g025/"
+indir <- "~/data/cmip6/mon/g025/"
+outdir <- "~/data/cmip6/mon/g025/"
+
+df <- filnams_reduced %>% 
+  mutate(filnam = str_remove(filnam, ".nc")) %>% 
+  mutate(cmd = paste0("./src/get_lai_tseries_north.sh ", filnam, " ", indir, " ", outdir))
+
+purrr::map(
+  as.list(df %>% 
+            slice(1) %>% 
+            pull(cmd)), 
+  ~system(., intern = TRUE)
+  )
+```
+
+Read into R
+```{r pressure, echo=FALSE}
+library(rbeni)
+
+read_one_file <- function(idx, df){
+  nc_to_df(paste0(outdir, "ANN_MAX_NORTH_MEAN/", df$filnam[[idx]], "_ANN_MAX_NORTH_MEAN.nc"), varnam = "lai") %>% 
+    mutate(model = df$model[[idx]])
+}
+
+df_lai <- map_dfr(
+  # as.list(seq(nrow(df))),
+  as.list(1),
+  ~read_one_file(., df)
+  )
+
+df_lai %>% 
+  ggplot(aes(time, lai, color = model)) +
+  geom_line()
+```
