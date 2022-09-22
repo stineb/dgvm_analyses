@@ -39,9 +39,9 @@ $\Delta$ is the difference between end and beginning of a transient simulation c
 
 Our hypothesis is that these relationships follow the 1:1 line.
 
-$\Delta C^\ast$ cannot be extracted directly from simulations. But it can be estimated from the imbalance between soil respiration and litter input before a steady state is reached:
+$C^\ast$ cannot be extracted directly from simulations. But it can be estimated from the imbalance between soil respiration and litter input before a steady state is reached:
 $$
-\tau \approx \frac{C(t)}{\text{NPP}(t) - \Delta C(t)}
+\tau \approx \frac{C(t)}{I(t) -\dot{C}(t)}
 $$
 
 Combine this with $\Delta C^\ast=\tau \; \text{NPP}$, to get:
