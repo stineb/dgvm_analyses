@@ -22,9 +22,6 @@ filnams <- read_delim("data/filnams_cmip6_historical.txt", delim = "\n")
 models <- purrr:::map_chr(as.list(filnams %>% pull(filnam)), ~return_model_name(.)) %>% 
   unique()
 
-## get info on land model from table, downloaded from https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id.html
-df_models <- read_csv("data/cmip6_models_landmodel.csv")
-
 find_one_file <- function(model, myfilnams){
  myfilnams %>% 
   filter(str_detect(filnam, model)) %>% 
@@ -91,6 +88,9 @@ df_lai %>%
 
 Get temporal trend for each model.
 ```{r}
+## get info on land model from table, downloaded from https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id.html
+df_models <- read_csv("data/cmip6_models_landmodel.csv")
+
 get_trend <- function(adf, year_start){
   adf <- adf %>% 
     filter(time >= year_start)
@@ -105,14 +105,20 @@ df_lai_nested <- df_lai %>%
   mutate(trend = purrr::map_dbl(data, ~get_trend(., year_start = 1982))) %>% 
   left_join(
     df_models %>% 
-      select(model, type),
+      select(model, landmodel_clean, type),
     by = "model"
   )
 
+#library(ggsci)
+library(RColorBrewer)
+colourCount = length(unique(df_lai_nested$landmodel_clean))
+getPalette = colorRampPalette(brewer.pal(12, "Paired"))
+set.seed(123)
 df_lai_nested %>% 
   filter(!is.na(type) & trend > 1e-9) %>% 
   ggplot(aes(x = type, y = trend)) +
   geom_boxplot(fill = "grey70") +
-  geom_jitter(width = 0.1) +
-  theme_classic()
+  geom_jitter(aes(color = landmodel_clean), width = 0.23, size = 3) +
+  theme_classic() + 
+  scale_color_manual(values = sample(getPalette(colourCount)))
 ```

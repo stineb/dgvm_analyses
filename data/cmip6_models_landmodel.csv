@@ -1,52 +1,52 @@
-model,landmodel,type,reference
-ACCESS-ESM1-5,CABLE2.4,CNP,"CASA-CNP, https://research.csiro.au/dfp/wp-content/uploads/sites/148/2018/05/cable_in_access.pdf"
-AWI-ESM-1-1-LR,JSBACH 3.20 with dynamic vegetation,CN,"Reick, C. H., Gayler, V., Goll, D., Hagemann, S., Heidkamp, M., Nabel, J. E. M. S., et al. (2021). JSBACH 3 - The land component of the MPI Earth System Model: documentation of version 3.2. Hamburg: MPI für Meteorologie. doi:10.17617/2.3279802."
-BCC-CSM2-MR,BCC_AVIM2,C,"Arora et al., 2020 BG"
-BCC-ESM1,BCC_AVIM2,C,"Arora et al., 2020 BG"
-CAMS-CSM1-0,CoLM 1.0,CN,"Zhou, T. J., Z. M. Chen, L. W. Zou, et al., 2020: Development of Climate and Earth System Models in China: Past achievements and new CMIP6 results. J. Meteor. Res., 34(1), 1–19, doi: 10.1007/s13351-020- 9164-0. "
-CanESM5-CanOE,CLASS3.6/CTEM1.2,C,
-CanESM5,CLASS3.6/CTEM1.2,C,
-CAS-ESM2-0,CoLM,CN,
-CESM2,CLM5 (same grid as atmos),CN,
-CESM2-WACCM,CLM5 (same grid as atmos),CN,
-CIESM,CIESM-LM (modified CLM4.5),CN,
-CMCC-CM2-HR4,CLM4.5 (SP mode),CN,https://www.cesm.ucar.edu/models/cesm1.2/clm/CLM45_Tech_Note.pdf
-CMCC-CM2-SR5,CLM4.5 (BGC mode),CN,https://www.cesm.ucar.edu/models/cesm1.2/clm/CLM45_Tech_Note.pdf
-CMCC-ESM2,CLM4.5 (BGC mode),CN,https://www.cesm.ucar.edu/models/cesm1.2/clm/CLM45_Tech_Note.pdf
-CNRM-CM6-1,Surfex 8.0c,,
-CNRM-CM6-1-HR,Surfex 8.0c,,
-CNRM-ESM2-1,Surfex 8.0c,,
-E3SM-1-0,"ELM (v1.0, cubed sphere spectral-element grid; 5400 elements with p=3; 1 deg average grid spacing; 90 x 90 x 6 longitude/latitude/cubeface; satellite phenology mode), MOSART (v1.0, 0.5 degree latitude/longitude grid)",CNP,
-E3SM-1-1,"ELM (v1.1, same grid as atmos; active biogeochemistry using the Converging Trophic Cascade plant and soil carbon and nutrient mechanisms to represent carbon, nitrogen and phosphorus cycles), MOSART (v1.1, 0.5 degree latitude/longitude grid)",CNP,
-EC-Earth3-CC,HTESSEL (land surface scheme built in IFS) and LPJ-GUESS v4,CN,
-EC-Earth3-Veg,HTESSEL (land surface scheme built in IFS) and LPJ-GUESS v4,CN,
-EC-Earth3-Veg-LR,HTESSEL (land surface scheme built in IFS) and LPJ-GUESS v4,CN,
-FGOALS-g3,CAS-LSM,CN,"https://doi.org/10.1029/2020MS002339, derived from CLM4.5"
-FIO-ESM-2-0,CLM4.0 (same grid at atmos),CN,https://www.cesm.ucar.edu/models/ccsm4.0/clm/CLM4_Tech_Note.pdf
-GFDL-CM4,"GFDL-LM4.0.1 (1 degree nominal horizontal resolution; 360 x 180 longitude/latitude; 20 levels; bottom level 10m); land-Veg:unnamed (dynamic vegetation, dynamic land use); land-Hydro:unnamed (soil water and ice, multi-layer snow, rivers and lakes)",CN,https://www.gfdl.noaa.gov/wp-content/uploads/2017/12/Shevliakova_v2_final.pdf
-GFDL-ESM4,GFDL-LM4.1,CN,https://www.gfdl.noaa.gov/wp-content/uploads/2017/12/Shevliakova_v2_final.pdf
-GISS-E2-1-G-CC,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
-GISS-E2-1-G,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
-GISS-E2-1-H,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
-GISS-E2-2-G,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
-GISS-E2-2-H,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
-GISS-E3-G,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
-HadGEM3-GC31-LL,JULES-HadGEM3-GL7.1,C,https://gmd.copernicus.org/articles/13/483/2020/
-HadGEM3-GC31-MM,JULES-HadGEM3-GL7.1,C,https://gmd.copernicus.org/articles/13/483/2020/
-INM-CM4-8,INM-LND1,C,"Volodin, E.M., Mortikov, E.V., Kostrykin, S.V. et al. Simulation of the present-day climate with the climate model INMCM5. Clim Dyn 49, 3715–3734 (2017). https://doi.org/10.1007/s00382-017-3539-7 and Volodin EM, Lykosov VN (1998) Parametrization of neat and moisture transfer in the soil-vegetation system for use in atmospheric general circulation models: 1. Formulation and simulations based on local observational data. Izv Atmos Ocean Phy 34:405–416"
-INM-CM5-0,INM-LND1,C,"Volodin, E.M., Mortikov, E.V., Kostrykin, S.V. et al. Simulation of the present-day climate with the climate model INMCM5. Clim Dyn 49, 3715–3734 (2017). https://doi.org/10.1007/s00382-017-3539-7 and Volodin EM, Lykosov VN (1998) Parametrization of neat and moisture transfer in the soil-vegetation system for use in atmospheric general circulation models: 1. Formulation and simulations based on local observational data. Izv Atmos Ocean Phy 34:405–416"
-IPSL-CM6A-LR,"ORCHIDEE (v2.0, Water/Carbon/Energy mode)",C,
-IPSL-CM6A-LR-INCA,"ORCHIDEE (v2.0, Water/Carbon/Energy mode)",C,
-KIOST-ESM,NCAR-CLM4,CN,
-MIROC-ES2H,MATSIRO6.0+VISIT-e ver.1.0,CN,
-MIROC-ES2L,MATSIRO6.0+VISIT-e ver.1.0,CN,
-MPI-ESM-1-2-HAM,JSBACH 3.20,CN,
-MPI-ESM1-2-HR,JSBACH3.20,CN,
-MPI-ESM1-2-LR,JSBACH3.20,CN,
-MRI-ESM2-0,HAL 1.0,,
-NorESM2-LM,CLM,CN,
-NorESM2-MM,CLM,CN,
-SAM0-UNICON,CLM4.0,CN,
-TaiESM1,CLM4.0 (same grid as atmos),CN,
-UKESM1-0-LL,JULES-ES-1.0,CN,
-UKESM1-1-LL,JULES-ES-1.0,CN,
+model,landmodel,landmodel_clean,type,reference
+ACCESS-ESM1-5,CABLE2.4,CABLE2.4,CNP,"CASA-CNP, https://research.csiro.au/dfp/wp-content/uploads/sites/148/2018/05/cable_in_access.pdf"
+AWI-ESM-1-1-LR,JSBACH 3.20 with dynamic vegetation,JSBACH 3.20,CN,"Reick, C. H., Gayler, V., Goll, D., Hagemann, S., Heidkamp, M., Nabel, J. E. M. S., et al. (2021). JSBACH 3 - The land component of the MPI Earth System Model: documentation of version 3.2. Hamburg: MPI für Meteorologie. doi:10.17617/2.3279802."
+BCC-CSM2-MR,BCC_AVIM2,BCC_AVIM2,C,"Arora et al., 2020 BG"
+BCC-ESM1,BCC_AVIM2,BCC_AVIM2,C,"Arora et al., 2020 BG"
+CAMS-CSM1-0,CoLM 1.0,CoLM 1.0,CN,"Zhou, T. J., Z. M. Chen, L. W. Zou, et al., 2020: Development of Climate and Earth System Models in China: Past achievements and new CMIP6 results. J. Meteor. Res., 34(1), 1–19, doi: 10.1007/s13351-020- 9164-0. "
+CanESM5-CanOE,CLASS3.6/CTEM1.2,CLASS3.6/CTEM1.2,C,
+CanESM5,CLASS3.6/CTEM1.2,CLASS3.6/CTEM1.2,C,
+CAS-ESM2-0,CoLM,CoLM,CN,
+CESM2,CLM5 (same grid as atmos),CLM5,CN,
+CESM2-WACCM,CLM5 (same grid as atmos),CLM5,CN,
+CIESM,CIESM-LM (modified CLM4.5),CIESM-LM (CLM4.5),CN,
+CMCC-CM2-HR4,CLM4.5 (SP mode),CLM4.5,CN,https://www.cesm.ucar.edu/models/cesm1.2/clm/CLM45_Tech_Note.pdf
+CMCC-CM2-SR5,CLM4.5 (BGC mode),CLM4.5,CN,https://www.cesm.ucar.edu/models/cesm1.2/clm/CLM45_Tech_Note.pdf
+CMCC-ESM2,CLM4.5 (BGC mode),CLM4.5,CN,https://www.cesm.ucar.edu/models/cesm1.2/clm/CLM45_Tech_Note.pdf
+CNRM-CM6-1,Surfex 8.0c,Surfex 8.0c,,
+CNRM-CM6-1-HR,Surfex 8.0c,Surfex 8.0c,,
+CNRM-ESM2-1,Surfex 8.0c,Surfex 8.0c,,
+E3SM-1-0,"ELM (v1.0, cubed sphere spectral-element grid; 5400 elements with p=3; 1 deg average grid spacing; 90 x 90 x 6 longitude/latitude/cubeface; satellite phenology mode), MOSART (v1.0, 0.5 degree latitude/longitude grid)",ELM,CNP,
+E3SM-1-1,"ELM (v1.1, same grid as atmos; active biogeochemistry using the Converging Trophic Cascade plant and soil carbon and nutrient mechanisms to represent carbon, nitrogen and phosphorus cycles), MOSART (v1.1, 0.5 degree latitude/longitude grid)",ELM,CNP,
+EC-Earth3-CC,HTESSEL (land surface scheme built in IFS) and LPJ-GUESS v4,LPJ-GUESS,CN,
+EC-Earth3-Veg,HTESSEL (land surface scheme built in IFS) and LPJ-GUESS v4,LPJ-GUESS,CN,
+EC-Earth3-Veg-LR,HTESSEL (land surface scheme built in IFS) and LPJ-GUESS v4,LPJ-GUESS,CN,
+FGOALS-g3,CAS-LSM,CAS-LSM,CN,"https://doi.org/10.1029/2020MS002339, derived from CLM4.5"
+FIO-ESM-2-0,CLM4.0 (same grid at atmos),CLM4.0,CN,https://www.cesm.ucar.edu/models/ccsm4.0/clm/CLM4_Tech_Note.pdf
+GFDL-CM4,"GFDL-LM4.0.1 (1 degree nominal horizontal resolution; 360 x 180 longitude/latitude; 20 levels; bottom level 10m); land-Veg:unnamed (dynamic vegetation, dynamic land use); land-Hydro:unnamed (soil water and ice, multi-layer snow, rivers and lakes)",GFDL-LM4.0.1 ,CN,https://www.gfdl.noaa.gov/wp-content/uploads/2017/12/Shevliakova_v2_final.pdf
+GFDL-ESM4,GFDL-LM4.1,GFDL-LM4.1,CN,https://www.gfdl.noaa.gov/wp-content/uploads/2017/12/Shevliakova_v2_final.pdf
+GISS-E2-1-G-CC,GISS LSM,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
+GISS-E2-1-G,GISS LSM,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
+GISS-E2-1-H,GISS LSM,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
+GISS-E2-2-G,GISS LSM,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
+GISS-E2-2-H,GISS LSM,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
+GISS-E3-G,GISS LSM,GISS LSM,CN,https://www.giss.nasa.gov/projects/ent/
+HadGEM3-GC31-LL,JULES-HadGEM3-GL7.1,JULES-HadGEM3-GL7.1,C,https://gmd.copernicus.org/articles/13/483/2020/
+HadGEM3-GC31-MM,JULES-HadGEM3-GL7.1,JULES-HadGEM3-GL7.1,C,https://gmd.copernicus.org/articles/13/483/2020/
+INM-CM4-8,INM-LND1,INM-LND1,C,"Volodin, E.M., Mortikov, E.V., Kostrykin, S.V. et al. Simulation of the present-day climate with the climate model INMCM5. Clim Dyn 49, 3715–3734 (2017). https://doi.org/10.1007/s00382-017-3539-7 and Volodin EM, Lykosov VN (1998) Parametrization of neat and moisture transfer in the soil-vegetation system for use in atmospheric general circulation models: 1. Formulation and simulations based on local observational data. Izv Atmos Ocean Phy 34:405–416"
+INM-CM5-0,INM-LND1,INM-LND1,C,"Volodin, E.M., Mortikov, E.V., Kostrykin, S.V. et al. Simulation of the present-day climate with the climate model INMCM5. Clim Dyn 49, 3715–3734 (2017). https://doi.org/10.1007/s00382-017-3539-7 and Volodin EM, Lykosov VN (1998) Parametrization of neat and moisture transfer in the soil-vegetation system for use in atmospheric general circulation models: 1. Formulation and simulations based on local observational data. Izv Atmos Ocean Phy 34:405–416"
+IPSL-CM6A-LR,"ORCHIDEE (v2.0, Water/Carbon/Energy mode)",ORCHIDEE,C,
+IPSL-CM6A-LR-INCA,"ORCHIDEE (v2.0, Water/Carbon/Energy mode)",ORCHIDEE,C,
+KIOST-ESM,NCAR-CLM4,CLM4.0,CN,
+MIROC-ES2H,MATSIRO6.0+VISIT-e ver.1.0,MATSIRO6.0+VISIT-e,CN,
+MIROC-ES2L,MATSIRO6.0+VISIT-e ver.1.0,MATSIRO6.0+VISIT-e,CN,
+MPI-ESM-1-2-HAM,JSBACH 3.20,JSBACH 3.20,CN,
+MPI-ESM1-2-HR,JSBACH3.20,JSBACH 3.20,CN,
+MPI-ESM1-2-LR,JSBACH3.20,JSBACH 3.20,CN,
+MRI-ESM2-0,HAL 1.0,HAL 1.0,,
+NorESM2-LM,CLM,CLM5,CN,https://doi.org/10.5194/gmd-13-6165-2020
+NorESM2-MM,CLM,CLM5,CN,https://doi.org/10.5194/gmd-13-6165-2020
+SAM0-UNICON,CLM4.0,CLM4.0,CN,
+TaiESM1,CLM4.0 (same grid as atmos),CLM4.0,CN,
+UKESM1-0-LL,JULES-ES-1.0,JULES-ES-1.0,CN,
+UKESM1-1-LL,JULES-ES-1.0,JULES-ES-1.0,CN,
