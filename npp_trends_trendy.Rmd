@@ -1,0 +1,108 @@
+---
+title: "LAI trends in CMIP6"
+output: html_document
+date: "2022-09-14"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(stringr)
+library(rbeni)
+```
+
+Determine file names of one file per model (not entire ensemble).
+```{r}
+df_filnams <- read_csv("data/filnams_trendy_v8_S2.csv") %>% 
+  select(model = modl, filnam = npp)
+```
+
+<!-- Download files. -->
+<!-- ```{r} -->
+<!-- indir <- "/nfs/ch4/data/cmip6-Next_Generation/lai/mon/g025/" -->
+<!-- outdir <- "~/data/cmip6/mon/g025/" -->
+
+<!-- df <- filnams_reduced %>%  -->
+<!--   mutate(cmd = paste0("scp bestocke@euler.ethz.ch:/nfs/ch4/data/cmip6-Next_Generation/lai/mon/g025/", filnam, " ", outdir)) -->
+
+<!-- out <- purrr::map(as.list(df %>% pull(cmd)), ~system(., intern = TRUE)) -->
+<!-- ``` -->
+
+Get time series of NPP averaged across Amazon
+```{r}
+df_box <- tibble(
+  long = c(-72, -51, -51, -72, -72), lat = c(4.5, 4.5, -12, -12, 4.5),
+  order = 1:5, group = rep(1, 5)
+  )
+
+plot_map_simpl2() +
+  geom_path(aes(x = long, y = lat, group = group), data = df_box, size = 0.3, color = "red")
+```
+
+
+```{r}
+indir <- "~/data/trendy/v8/"
+outdir <- "~/data/trendy/v8/"
+
+df_filnams <- df_filnams %>% 
+  mutate(filnam = str_remove(filnam, ".nc")) %>% 
+  mutate(cmd = paste0("./src/get_npp_tseries_amazon.sh ", filnam, " ", indir, " ", outdir))
+
+purrr::map(
+  as.list(df_filnams %>% 
+            slice(1) %>% 
+            pull(cmd)), 
+  ~system(., intern = TRUE)
+  )
+```
+
+Read into R
+```{r pressure, echo=FALSE}
+read_one_file <- function(idx, df){
+  nc_to_df(paste0(outdir, df_filnams$filnam[[idx]], "_ANN_AMAZON_MEAN.nc"), varnam = "npp") %>% 
+    mutate(model = df_filnams$model[[idx]])
+}
+
+df_npp <- map_dfr(
+  as.list(seq(nrow(df_filnams))),
+  # as.list(1),
+  ~read_one_file(., df_filnams)
+  )
+```
+
+```{r}
+saveRDS(df_npp, file = "data/df_npp.rds")
+# df_npp <- readRDS("data/df_npp.rds")
+
+df_npp %>% 
+  ggplot(aes(time, npp, color = model)) +
+  geom_line()
+```
+
+Get temporal trend for each model.
+```{r}
+get_trend <- function(adf, year_start){
+  adf <- adf %>% 
+    filter(time >= year_start)
+  linmod <- lm(lai ~ time, data = adf)
+  laitrend <- coef(linmod)["time"]
+  return(laitrend)
+}
+
+df_npp_nested <- df_npp %>% 
+  group_by(model) %>% 
+  nest() %>% 
+  mutate(trend = purrr::map_dbl(data, ~get_trend(., year_start = 1982))) %>% 
+  left_join(
+    df_models %>% 
+      select(model, type),
+    by = "model"
+  )
+
+df_npp_nested %>% 
+  filter(!is.na(type) & trend > 1e-9) %>% 
+  ggplot(aes(x = type, y = trend)) +
+  geom_boxplot(fill = "grey70") +
+  geom_jitter(width = 0.1) +
+  theme_classic()
+```
