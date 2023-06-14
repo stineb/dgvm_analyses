@@ -122,4 +122,16 @@ gg2 <- df_models_trend %>%
   theme_classic()
 
 gg1 + gg2
+
+library(RColorBrewer)
+colourCount = length(unique(df_models_trend$model))
+getPalette = colorRampPalette(brewer.pal(12, "Paired"))
+set.seed(123)
+
+df_models_trend %>% 
+  ggplot(aes(type, trend)) +
+  geom_boxplot(fill = "grey80", outlier.shape = NA) +
+  geom_jitter(aes(color = model), width = 0.1, size = 3) + 
+  theme_classic() + 
+  scale_color_manual(values = sample(getPalette(colourCount)))
 ```
