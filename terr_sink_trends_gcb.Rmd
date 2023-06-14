@@ -8,6 +8,8 @@ date: "2022-09-14"
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(patchwork)
+library(cowplot)
+library(RColorBrewer)
 ```
 
 ## GCB 2021 / TRENDY v8
@@ -18,7 +20,7 @@ df <- read_csv("~/data/globalcarbonproject/gcp-2021/Global_Carbon_Budget_2021v1.
 
 Define decades
 ```{r pressure, echo=FALSE}
-df <- df %>% 
+df <- df |> 
   mutate(decade = ifelse(Year > 1979 & Year < 1990, 
                          1980,
                          ifelse(Year > 1989 & Year < 2000, 1990,
@@ -29,39 +31,39 @@ df <- df %>%
 
 Re-format data
 ```{r}
-df_models <- df %>% 
-  select(-GCB, -mean_models, -sd_models) %>% 
+df_models <- df |> 
+  select(-GCB, -mean_models, -sd_models) |> 
   pivot_longer(cols = c("CABLE-POP",  "CLASSIC",    "CLM5.0",     "DLEM",       "IBIS",       "ISAM",       "ISBA-CTRIP", "JSBACH",     "JULES-ES", "LPJ-GUESS",  "LPJ",        "LPX-Bern",   "OCNv2",      "ORCHIDEE-v3","SDGVM",      "VISIT",      "YIBs"),
                names_to = "model",
                values_to = "sland"
               )
 
-# df_models %>% 
-#   select(model) %>% 
-#   distinct() %>% 
-#   mutate(type = "") %>% 
+# df_models |> 
+#   select(model) |> 
+#   distinct() |> 
+#   mutate(type = "") |> 
 #   write_csv(file = "data/model_types_trendy_gcp2021.csv")
 
 df_modeltypes <- read_csv("data/model_types_trendy_gcp2021.csv")
 
-df_decades <- df_models %>% 
-  drop_na() %>% 
-  group_by(decade, model) %>% 
-  summarise(sland = mean(sland)) %>% 
+df_decades <- df_models |> 
+  drop_na() |> 
+  group_by(decade, model) |> 
+  summarise(sland = mean(sland)) |> 
   left_join(
     df_modeltypes,
     by = "model"
   )
 
-df_models <- df_models %>% 
+df_models <- df_models |> 
   left_join(
     df_modeltypes,
     by = "model"
   )
 
-df_decades_obs <- df %>% 
-  drop_na() %>% 
-  group_by(decade) %>% 
+df_decades_obs <- df |> 
+  drop_na() |> 
+  group_by(decade) |> 
   summarise(sland = mean(GCB))
 ```
 
@@ -74,64 +76,106 @@ ggplot() +
 ```
 
 ```{r}
-df %>% 
+df |> 
   ggplot(aes(Year, GCB)) + 
   geom_line(color = "grey50") +
   geom_smooth(method = "lm", color = "black")
 
-gg1 <- df_models %>% 
-  group_by(Year, type) %>% 
-  summarise(sland = mean(sland)) %>% 
+tmp <- df_models |> 
+  group_by(Year, type) |> 
+  summarise(sland = mean(sland)) |> 
   bind_rows(
-    df %>% 
-      select(Year, sland = GCB) %>% 
-      mutate(type = "obs")
-  ) %>% 
+    df |> 
+      select(Year, sland = GCB) |> 
+      mutate(type = "Obs.")
+  )
+
+vec_types <- unique(tmp$type)
+tmp <- tmp |> 
+  mutate(type = factor(type, 
+                        levels = (c("Obs.", 
+                                    vec_types[-which(vec_types == "Obs.")]))))
+
+colourCount = length(unique(tmp$type))
+getPalette = colorRampPalette(brewer.pal(12, "Paired"))
+set.seed(1982)
+
+# time series
+gg1 <- tmp |> 
   ggplot(aes(Year, sland, color = type)) +
   geom_smooth(method = "lm", se = FALSE) +
-  geom_line() +
-  theme_classic()
+  geom_line(size = 0.8) +
+  theme_classic() +
+  scale_color_manual(values = c("black", "tomato", "royalblue")) +
+  labs(x = "Year", y = expression(paste("Sink (g C m"^2, "yr"^-1, ")")))
+
+# mean sink
+tmp |> 
+  ungroup() |> 
+  filter(Year %in% 1991:202) |> 
+  summarise(sland = mean(sland))
+
 
 get_trend <- function(adf, year_start){
-  adf <- adf %>% 
+  adf <- adf |> 
     filter(Year >= year_start)
   linmod <- lm(sland ~ Year, data = adf)
   sinktrend <- coef(linmod)["Year"]
   return(sinktrend)
 }
 
-df_models_trend <- df_models %>% 
+get_sland_mean <- function(adf, use_years){
+  adf |> 
+    filter(Year %in% use_years) |> 
+    summarise(sland = mean(sland)) |> 
+    pull(sland)
+}
+
+df_models_trend <- df_models |> 
   bind_rows(
-    df %>% 
-      select(Year, sland = GCB) %>% 
+    df |> 
+      select(Year, sland = GCB) |> 
       mutate(model = "obs")
-  ) %>% 
-  group_by(model) %>% 
-  nest() %>% 
-  mutate(trend = purrr::map_dbl(data, ~get_trend(., year_start = 1959))) %>% 
+  ) |> 
+  group_by(model) |> 
+  nest() |> 
+  mutate(trend = purrr::map_dbl(data, ~get_trend(., year_start = 1959)),
+         sland_mean = purrr::map_dbl(data, ~get_sland_mean(., use_years = 2011:2020))) |> 
   left_join(
     df_modeltypes,
     by = "model"
-  ) %>% 
-  mutate(type = ifelse(is.na(type), "obs", type))
+  ) |> 
+  mutate(type = ifelse(is.na(type), "obs", type)) |> 
+  mutate(model = ifelse(model == "obs", "Observations", model)) |> 
+  mutate(type = ifelse(type == "obs", "Obs.", type))
 
-gg2 <- df_models_trend %>% 
-  ggplot(aes(type, trend, color = type)) +
-  geom_boxplot(fill = "grey80") +
-  geom_jitter(width = 0.1) + 
-  theme_classic()
-
-gg1 + gg2
-
-library(RColorBrewer)
 colourCount = length(unique(df_models_trend$model))
 getPalette = colorRampPalette(brewer.pal(12, "Paired"))
-set.seed(123)
+set.seed(1986)
 
-df_models_trend %>% 
-  ggplot(aes(type, trend)) +
-  geom_boxplot(fill = "grey80", outlier.shape = NA) +
-  geom_jitter(aes(color = model), width = 0.1, size = 3) + 
+gg2 <- df_models_trend |> 
+    mutate(model = factor(model, 
+                        levels = (c("Observations", 
+                                    df_models_trend$model[-which(df_models_trend$model == "Observations")])))) |>  
+  ggplot(aes(x = type, y = sland_mean)) +
+  geom_boxplot(fill = "azure3", outlier.color = "white", show.legend = FALSE) +
+  geom_jitter(aes(color = model), width = 0.2, size = 3, show.legend = FALSE) + 
   theme_classic() + 
-  scale_color_manual(values = sample(getPalette(colourCount)))
+  scale_color_manual(values = c("black", sample(getPalette(colourCount)))) +
+  labs(title = "Mean 2011-2020", x = "Model type and observations", y = expression(paste("Mean sink (g C m"^2, "yr"^-1, ")")))
+
+gg3 <- df_models_trend |> 
+    mutate(model = factor(model, 
+                        levels = (c("Observations", 
+                                    df_models_trend$model[-which(df_models_trend$model == "Observations")])))) |>  
+  ggplot(aes(x = type, y = trend)) +
+  geom_boxplot(fill = "azure3", outlier.color = "white") +
+  geom_jitter(aes(color = model), width = 0.2, size = 3) + 
+  theme_classic() + 
+  scale_color_manual(values = c("black", sample(getPalette(colourCount)))) +
+  labs(title = "Trend 1959-2020", x = "Model type and observations", y = expression(paste("Sink trend (g C m"^2, "yr"^-2, ")")))
+
+bottomrow <- cowplot::plot_grid(gg2, gg3, rel_widths = c(1,1.3), ncol = 2)
+cowplot::plot_grid(gg1, bottomrow, nrow = 2, rel_heights = c(0.8, 1))
+ggsave("fig/sink_trend_trendy.pdf", width = 1.7*6, height = 1.7*5)
 ```
